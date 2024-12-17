@@ -11,7 +11,7 @@ class IVRestrictedAI:
     def __init__(self, truth_table: List[bool], n_vars: int = None):
         self.t_table = truth_table
         if n_vars is None:
-            self.n = math.log(len(truth_table), 2)
+            self.n = int(math.log(len(truth_table), 2))
         else:
             self.n = n_vars
 
@@ -92,6 +92,7 @@ class IVRestrictedAI:
                     else:
                         vander_monde = vander_monde_old
                         e.remove(e[i])
+                        continue
                 else:
                     new_index = i + vanish_index[0] + 1
                     tmp = z[i + 1]
@@ -157,6 +158,11 @@ class IVRestrictedAI:
             (z, z_c, e, s_bin),
             (z_c, z, e, s_bin)
         ]
+        #imm1 = f_ummu.find_min_annihilator(z, z_c, e, s_bin)
+
+        #imm2 = f_ummu.find_min_annihilator(z_c, z, e, s_bin)
+
+        #results = [imm1, imm2]
         with Pool() as pool:
             results = pool.starmap(f_ummu.find_min_annihilator, args)
         return min([item for item in results if item is not None])

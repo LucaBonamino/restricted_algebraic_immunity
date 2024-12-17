@@ -13,8 +13,8 @@ from restricted_algebraic_immunity.entities.enums import FileName
 class FRMRestrictedAI:
 
     def __init__(self):
-        rm = load(f"{settings.root_path}/full_reed_muller/pre_computed/{FileName.REED_MILLER.value}.sobj")
-        degrees = load(f"{settings.root_path}/full_reed_muller/pre_computed/{FileName.DEGREES.value}.sobj")
+        rm = load(f"{settings.root_path}/full_reed_muller/pre_computation/{FileName.REED_MILLER.value}.sobj")
+        degrees = load(f"{settings.root_path}/full_reed_muller/pre_computation/{FileName.DEGREES.value}.sobj")
         self.degrees = degrees
         self.reed_millers = rm
 
