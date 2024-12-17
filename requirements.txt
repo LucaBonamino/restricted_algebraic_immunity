@@ -1,0 +1,4 @@
+setuptools
+pip-autoremove
+
+algebraic_immunity_utils>=0.1.0
