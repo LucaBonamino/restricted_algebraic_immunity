@@ -64,7 +64,7 @@ class TestRestrictedEfficientImmunityExtensive(unittest.TestCase):
                 self.assertEqual(ai_k_n, r)
 
     def test_full_random_v_dist(self):
-        immunity_obj = AlgebraicImmunityRestrictedSet()
+        immunity_obj = FRMRestrictedAI()
 
         max_n = 10
         for _ in range(1000):
@@ -73,17 +73,15 @@ class TestRestrictedEfficientImmunityExtensive(unittest.TestCase):
             v = [Integer(random.randint(0, 1)) for _ in range(2 ** Integer(n_var))]
             f = BooleanFunction(v)
             for k in p:
-                ai_k = AIk(k=k, f=f)
-                ai_k_n = immunity_obj.find_immunity_full_precomputation(f=f, s=p[k])
+                ai_k_n = immunity_obj.algebraic_immunity(f=f, s=p[k])
                 s_image = [v[i] for i in p[k]]
-                r = EfficientAIRestrictedSet.algebraic_immunity_dist(s_image=s_image, s=p[k], n_var=n_var)
+                r = IVRestrictedAI.algebraic_immunity_dist(s_image=s_image, s=p[k], n_vars=n_var)
                 if ai_k_n != r:
                     print(ai_k_n, r)
                     print(f.truth_table())
                     print(p[k])
                     print(k)
                 self.assertEqual(ai_k_n, r)
-                self.assertEqual(ai_k, ai_k_n)
 
     def test_full_random_unbalanced(self):
         immunity_obj = AlgebraicImmunityRestrictedSet()

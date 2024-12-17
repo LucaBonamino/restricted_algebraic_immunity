@@ -8,7 +8,7 @@ from algebraic_immunity_utils.algebraic_immunity_utils import Matrix as GF2Matri
 
 class IVRestrictedAI:
 
-    def __init__(self, truth_table: List[bool], n_vars: int = None):
+    def __init__(self, truth_table: List[int], n_vars: int = None):
         self.t_table = truth_table
         if n_vars is None:
             self.n = int(math.log(len(truth_table), 2))
@@ -147,8 +147,21 @@ class IVRestrictedAI:
             s_bin.append(bin(i)[2:].zfill(self.n))
         return true_idxs, false_idxs, s_bin
 
+    def compute_z_for_dist(self, s):
+        true_idxs = []
+        false_idxs = []
+        s_bin = []
+
+        for i in range(len(self.t_table)):
+            if self.t_table[i] == 1:
+                true_idxs.append(bin(s[i])[2:].zfill(self.n))
+            else:
+                false_idxs.append(bin(s[i])[2:].zfill(self.n))
+            s_bin.append(bin(s[i])[2:].zfill(self.n))
+        return true_idxs, false_idxs, s_bin
+
     @classmethod
-    def algebraic_immunity(cls, truth_table: List[bool], s: List[int]) -> int:
+    def algebraic_immunity(cls, truth_table: List[int], s: List[int]) -> int:
         f_ummu = IVRestrictedAI(truth_table=truth_table)
         z, z_c, s_bin = f_ummu.compute_z(s)
         if z == [] or z_c == []:
@@ -166,3 +179,22 @@ class IVRestrictedAI:
         with Pool() as pool:
             results = pool.starmap(f_ummu.find_min_annihilator, args)
         return min([item for item in results if item is not None])
+
+    @classmethod
+    def algebraic_immunity_dist(cls, s_image: List[int], s: List[int], n_vars: int, _verbose: bool = False,
+                                _hide: bool = False) -> int:
+        f_ummu = IVRestrictedAI(truth_table=s_image, n_vars=n_vars)
+        if len(set(f_ummu.t_table)) == 1:
+            return int(0)
+
+        z, z_c, s_bin = f_ummu.compute_z_for_dist(s)
+        e = cls.compute_monomials(n=f_ummu.n, r=f_ummu.n)
+
+        args = [
+                (z, z_c, e, s_bin),
+                (z_c, z, e, s_bin)
+        ]
+        with Pool() as pool:
+            results = pool.starmap(f_ummu.find_min_annihilator, args)
+        return min([item for item in results if item is not None])
+

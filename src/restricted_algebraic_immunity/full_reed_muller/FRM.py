@@ -63,7 +63,6 @@ class FRMRestrictedAI:
         if len(set([tb[i] for i in s])) == 1:
             return 0
         degrees = self.degrees[n]
-        reed_miller_f_generator, reed_miller_g_generator = FRMRestrictedAI.get_gen_matrices(f=f, m=mat,
-                                                                                                           s=s)
+        reed_miller_f_generator, reed_miller_g_generator = FRMRestrictedAI.get_gen_matrices(f=f, m=mat, s=s)
         args_to_processes = [(s, reed_miller_f_generator, mat, degrees), (s, reed_miller_g_generator, mat, degrees)]
         return FRMRestrictedAI.run_processes(args_to_processes)
