@@ -1,6 +1,7 @@
 import itertools
 import json
 import math
+import random
 
 from pathlib import Path
 from typing import Union, List
@@ -59,6 +60,24 @@ class BalancedSlice:
         half_n = math.ceil(len(self.domain)/ 2)
         iter = itertools.combinations(range(len(self.domain)), half_n)
         return [[1 if idx in indexes else 0 for idx,v in enumerate(self.domain)] for indexes in iter]
+
+    @staticmethod
+    def generate_random_vector(size, k):
+        v = [0 for _ in range(size)]
+        step = 0
+        used_indexes = []
+        while step < k:
+            rand_idx = random.randint(0, size - 1)
+            if rand_idx not in used_indexes:
+                v[rand_idx] = 1
+                used_indexes.append(rand_idx)
+                step += 1
+        return v
+
+    def generate_wapb_random_vectors(self, sample_size: int):
+        half_n = math.ceil(len(self.domain)/ 2)
+        for _ in range(sample_size):
+            yield BalancedSlice.generate_random_vector(len(self.domain), half_n)
 
 
 
