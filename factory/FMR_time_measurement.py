@@ -1,6 +1,7 @@
 import argparse
 import os
 
+from restricted_algebraic_immunity.full_reed_muller.pre_compute import pre_compute_all
 from time_comparison import TimeMeasurement
 from restricted_algebraic_immunity.full_reed_muller.FRM import FRMRestrictedAI
 from restricted_algebraic_immunity.utils.logging import get_logger
@@ -28,11 +29,13 @@ if __name__ == '__main__':
     parser.add_argument('-O', '--sample_size', help='sample_size', type=int, default=10000)
     args = parser.parse_args()
 
+    t = pre_compute_all(n_vars=args.max_n)
 
     times, aik_s = FMRTimeMeasurement.measure_time_for_ai_e_n_half(max_n=args.max_n, sample_size=args.sample_size)
     print(times)
     print()
     print(aik_s)
+    times['pre_computation_time'] = t
     script_dir = os.path.dirname(os.path.abspath(__file__))
     file_path = os.path.join(script_dir, f"results/FRM/times_{args.sample_size}.csv")
     times.to_csv(file_path, index=False)

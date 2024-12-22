@@ -13,8 +13,8 @@ _log = get_logger(__name__)
 class IVTimeMeasurement(TimeMeasurement):
 
     @classmethod
-    def measure_time_for_ai_e_n_half(cls, max_n: int = 17, sample_size: int = 1000):
-        return cls.measure_time_for_ai_e_n_half_by_alg(alg=IVRestrictedAI, max_n=max_n, sample_size=sample_size)
+    def measure_time_for_ai_e_n_half(cls, max_n: int = 17, sample_size: int = 1000, parallel=False):
+        return cls.measure_time_for_ai_e_n_half_by_alg(alg=IVRestrictedAI, max_n=max_n, sample_size=sample_size, parallel=parallel)
 
 
 
@@ -27,7 +27,7 @@ if __name__ == '__main__':
     parser.add_argument('-O', '--sample_size', help='sample_size', type=int, default=10000)
     args = parser.parse_args()
 
-    times, aik_s = IVTimeMeasurement.measure_time_for_ai_e_n_half(max_n=args.max_n, sample_size=args.sample_size)
+    times, aik_s = IVTimeMeasurement.measure_time_for_ai_e_n_half(max_n=args.max_n, sample_size=args.sample_size, parallel=False)
     print(times)
     print()
     print(aik_s)
@@ -35,5 +35,7 @@ if __name__ == '__main__':
     file_path = os.path.join(script_dir, f"results/IV/times_{args.sample_size}.csv")
     times.to_csv(file_path, index=False)
 
-    file_path = os.path.join(script_dir, f"results/IV/ai_ks_{args.sample_size}.csv")
-    aik_s.to_csv(file_path, index=False)
+    #file_path = os.path.join(script_dir, f"results/IV/ai_ks_{args.sample_size}.csv")
+    #aik_s.to_csv(file_path, index=False)
+
+
