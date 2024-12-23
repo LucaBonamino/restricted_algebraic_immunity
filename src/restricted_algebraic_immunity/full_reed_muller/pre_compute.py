@@ -34,6 +34,17 @@ def pre_compute_all(n_vars):
     save_deg_to_file(degrees)
     return dt
 
+def pre_compute_all_separated(n_vars):
+    t = time.time()
+    m = pre_compute_all_matrices(n=n_vars, restricted=True)
+    dt_m = time.time() - t
+    t = time.time()
+    degrees = pre_compute_degrees(n=n_vars, restricted=True)
+    dt_d = time.time() - t
+    save_to_matrices_file(m)
+    save_deg_to_file(degrees)
+    return dt_m, dt_d
+
 
 def save_deg_to_file(d: Dict):
     save(d, f'{settings.root_path}/full_reed_muller/pre_computation/degs.sobj')

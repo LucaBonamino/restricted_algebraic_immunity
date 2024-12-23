@@ -161,7 +161,7 @@ class IVRestrictedAI:
         return true_idxs, false_idxs, s_bin
 
     @classmethod
-    def algebraic_immunity(cls, truth_table: List[int], s: List[int]) -> int:
+    def algebraic_immunity(cls, truth_table: List[int], s: List[int], _hide=False) -> int:
         f_ummu = IVRestrictedAI(truth_table=truth_table)
         z, z_c, s_bin = f_ummu.compute_z(s)
         if z == [] or z_c == []:

@@ -29,7 +29,8 @@ if __name__ == '__main__':
     parser.add_argument('-O', '--sample_size', help='sample_size', type=int, default=10000)
     args = parser.parse_args()
 
-    t = pre_compute_all(n_vars=args.max_n)
+    # t = pre_compute_all(n_vars=args.max_n)
+    t = 276.2263057231903
 
     times, aik_s = FMRTimeMeasurement.measure_time_for_ai_e_n_half(max_n=args.max_n, sample_size=args.sample_size)
     print(times)
@@ -37,8 +38,8 @@ if __name__ == '__main__':
     print(aik_s)
     times['pre_computation_time'] = t
     script_dir = os.path.dirname(os.path.abspath(__file__))
-    file_path = os.path.join(script_dir, f"results/FRM/times_{args.sample_size}.csv")
+    file_path = os.path.join(script_dir, f"results/FRM/times_{args.sample_size}_unique.csv")
     times.to_csv(file_path, index=False)
 
-    file_path = os.path.join(script_dir, f"results/FRM/ai_ks_{args.sample_size}.csv")
-    aik_s.to_csv(file_path, index=False)
+    # file_path = os.path.join(script_dir, f"results/FRM/ai_ks_{args.sample_size}_unique.csv")
+    # aik_s.to_csv(file_path, index=False)

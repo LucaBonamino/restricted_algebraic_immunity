@@ -32,7 +32,7 @@ if __name__ == '__main__':
     print()
     print(aik_s)
     script_dir = os.path.dirname(os.path.abspath(__file__))
-    file_path = os.path.join(script_dir, f"results/IV/times_{args.sample_size}.csv")
+    file_path = os.path.join(script_dir, f"results/IV/times_{args.sample_size}_unique.csv")
     times.to_csv(file_path, index=False)
 
     #file_path = os.path.join(script_dir, f"results/IV/ai_ks_{args.sample_size}.csv")

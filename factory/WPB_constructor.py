@@ -1,6 +1,7 @@
 import itertools
 import json
 import math
+from sage.all import *
 import random
 
 from pathlib import Path
@@ -78,6 +79,29 @@ class BalancedSlice:
         half_n = math.ceil(len(self.domain)/ 2)
         for _ in range(sample_size):
             yield BalancedSlice.generate_random_vector(len(self.domain), half_n)
+
+    def build_wpb_vectors(self, sample_size=None, parallel: bool = False):
+        print(f"build_vectors called with self.k={self.k} and self.max_column={self.max_column}")
+        if self.k == 0:
+            log.debug("Condition met: self.k == 0 or self.k == self.max_column - 1")
+            # vect = zero_vector(GF(2), self.max_column)
+            # vect[-1] = Integer(1)
+            # log.debug(f"Returning vector: {vect}")
+            yield vector(GF(2), [0])
+        elif self.k == self.n:
+            yield vector(GF(2), [1])
+        else:
+            half_n = len(self.domain) // 2
+            log.debug("Condition not met, calling self.generate_half_hamming_weight_vectors")
+            if len(self.domain) % 2:
+                log.error("The length of the vector must be even.")
+                raise ValueError("The length of the vector must be even.")
+
+            for _ in range(sample_size):
+                yield BalancedSlice.generate_random_vector(len(self.domain), half_n)
+
+
+
 
 
 

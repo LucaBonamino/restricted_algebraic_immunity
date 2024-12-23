@@ -26,7 +26,8 @@ class TimeMeasurement:
         times = {}
         ai_ks_d = {}
 
-        for n in range(1, max_n):
+        itera = [12]
+        for n in itera:
             times[n] = 0
             k = math.ceil(n / 2)
             wapb_family = WAPBFamily(n=n)
