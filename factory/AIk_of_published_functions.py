@@ -26,4 +26,5 @@ if __name__ == '__main__':
     # print(dm_24(8))
     # print()
     print("ZN23 8")
-    print(zn_23(16))
+    print(zn_23(8))
+    print(dm_24(8))

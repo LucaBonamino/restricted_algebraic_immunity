@@ -87,18 +87,16 @@ class BalancedSlice:
             # vect = zero_vector(GF(2), self.max_column)
             # vect[-1] = Integer(1)
             # log.debug(f"Returning vector: {vect}")
-            yield vector(GF(2), [0])
+            return [vector(GF(2), [0])]
         elif self.k == self.n:
-            yield vector(GF(2), [1])
+            return [vector(GF(2), [1])]
         else:
             half_n = len(self.domain) // 2
             log.debug("Condition not met, calling self.generate_half_hamming_weight_vectors")
             if len(self.domain) % 2:
                 log.error("The length of the vector must be even.")
                 raise ValueError("The length of the vector must be even.")
-
-            for _ in range(sample_size):
-                yield BalancedSlice.generate_random_vector(len(self.domain), half_n)
+            return [BalancedSlice.generate_random_vector(len(self.domain), half_n) for i in range(sample_size)]
 
 
 
