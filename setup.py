@@ -26,4 +26,7 @@ setup(
     packages=find_packages(where="src", include=["restricted_algebraic_immunity*"]),
     package_dir={"": "src"},
     zip_safe=False,
+    console_scripts={
+            "restrictedAI": "restricted_algebraic_immunity.entry_point:main"
+    }
 )

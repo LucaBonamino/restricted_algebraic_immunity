@@ -14,7 +14,7 @@ from matplotlib.ticker import MaxNLocator
 
 from sage.all import *
 
-from WPB_constructor import WPBFamily
+from restricted_algebraic_immunity.factory.WPB_constructor import WPBFamily
 from restricted_algebraic_immunity.inductive_reed_muller.IV import IVRestrictedAI
 from restricted_algebraic_immunity.utils.logging import get_logger
 
