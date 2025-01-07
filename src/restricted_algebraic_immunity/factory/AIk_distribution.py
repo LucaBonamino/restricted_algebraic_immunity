@@ -8,7 +8,7 @@ import time
 from concurrent.futures import ProcessPoolExecutor
 from functools import partial
 from pathlib import Path
-from typing import List
+from typing import List, Tuple, Dict
 
 import matplotlib.pyplot as plt
 import pandas as pd
@@ -32,6 +32,12 @@ class DFKeys(enum.Enum):
     AIK_DIST = 'aik_distribution'
     AVERAGE_T = 'average_execution_time'
     AVERAGE_AIK = 'average_aik'
+
+
+class ParallelizationType(enum.Enum):
+    SLICES = 'slices'
+    SAMPLES = 'a'
+    SEQUENCIAL = 'sequencial'
 
 
 class AIkDistribution:
@@ -190,7 +196,7 @@ class AIkDistribution:
         return df_2, df_times, df_averages
 
     @classmethod
-    def plot_dist(cls, distribution_data, n, sample_size,
+    def plot_dist(cls, distribution_data: Tuple[pd.DataFrame, Dict[int, pd.DataFrame]], n: int, sample_size: int,
                   parallelization_type: str = "", save: bool = False):
         # filename = tables_dir / f"table_m_{m}_sample_size_{sample_size}"
 
@@ -341,6 +347,50 @@ def save_raw_data_to_file(filename: Path, data: str):
         file.write(data)
 
 
+def main(n: int, k_max: int, k_min: int, parallelize_by: ParallelizationType, sample_size: int, plot: bool):
+    slice_k = list(range(n + 1))
+    if k_max is not None:
+        if k_max != k_min:
+            slice_k = list(range(k_min, k_max + 1))
+        else:
+            slice_k = [k_min]
+
+    print(slice_k)
+    m_log = int(math.log(n, 2))
+    if parallelize_by == ParallelizationType.SLICES:
+        dist_df, times_df, df_averages = AIkDistribution.func_parallel(m=m_log, n=n, s=sample_size,
+                                                                       k_range=slice_k)
+    elif parallelize_by == ParallelizationType.SAMPLES:
+        dist_df, times_df, df_averages = AIkDistribution.func_parallel_seq(m=m_log, n=n, s=sample_size,
+                                                                           k_range=slice_k)
+    else:
+        dist_df, times_df, df_averages = AIkDistribution.func_parallel_non_parallel(m=m_log, n=n,
+                                                                                    s=sample_size, k_range=slice_k)
+        # dist_df, times_df, df_averages = AIkDistribution.func_parallel_seq(m=m_log, n=args.n_vars, s=args.sample_size)
+    times_latex = times_df.to_latex(index=False, escape=False)
+    dire = Path(
+        os.path.join(SCRIPT_DIR, f"../factory/results/IV/AIk_distributions/n_{n}"))
+    if not dire.is_dir():
+        dire.mkdir()
+
+    file_path = dire / f"times_n_{n}_sample_{sample_size}_{parallelize_by.value}_{k_min}_{k_max}.txt"
+    save_raw_data_to_file(filename=file_path, data=times_latex)
+    print(dist_df)
+    dist_latex = dist_df[1].to_latex(index=False, escape=False)
+    if plot is True:
+        AIkDistribution.plot_dist(distribution_data=(df_averages, dist_df[0]), sample_size=sample_size,
+                                  n=n,
+                                  save=True, parallelization_type=parallelize_by.value)
+    # AIkDistribution.plot_dist(distribution_data=(None, None), sample_size=args.sample_size, n=args.n_vars,
+    #                           save=True)
+    file_path = dire / f"distribution_n_{n}_sample_{sample_size}_{parallelize_by.value}_{k_min}_{k_max}.txt"
+    save_raw_data_to_file(filename=file_path, data=dist_latex)
+
+    file_path = dire / f"distribution_n_{n}_sample_{sample_size}_{parallelize_by.value}_{k_min}_{k_max}_averages.txt"
+    averages_latex = df_averages.to_latex(index=False, escape=False)
+    save_raw_data_to_file(filename=file_path, data=averages_latex)
+
+
 if __name__ == '__main__':
     # print(multiprocessing.cpu_count())
     parser = argparse.ArgumentParser(
@@ -349,52 +399,56 @@ if __name__ == '__main__':
     )
     parser.add_argument('-n', '--n_vars', help='number of variables', type=int, default=8)
     parser.add_argument('-O', '--sample_size', help='sample_size', type=int, default=10)
-    parser.add_argument('-p', '--parallelize_by', type=str, default='slice')
+    parser.add_argument('-p', '--parallelize_by', type=lambda p: ParallelizationType(p),
+                        default=ParallelizationType.SLICES.value)
     parser.add_argument('-kM', '--k_max', type=int, default=None)
     parser.add_argument('-km', '--k_min', type=int, default=0)
     parser.add_argument('-pl', '--plot', action='store_true', help="Plot results")
     args = parser.parse_args()
 
-    slice_k = list(range(args.n_vars + 1))
+    main(n=args.n_vars, k_max=args.k_max, k_min=args.k_min, sample_size=args.sample_size,
+         parallelize_by=args.parallelize_by, plot=args.plot)
 
-    if args.k_max is not None:
-        if args.k_max != args.k_min:
-            slice_k = list(range(args.k_min, args.k_max + 1))
-        else:
-            slice_k = [args.k_min]
-    print(slice_k)
-    m_log = int(math.log(args.n_vars, 2))
-    if args.parallelize_by == 'slice':
-        dist_df, times_df, df_averages = AIkDistribution.func_parallel(m=m_log, n=args.n_vars, s=args.sample_size,
-                                                                       k_range=slice_k)
-    elif args.parallelize_by == 'a':
-        dist_df, times_df, df_averages = AIkDistribution.func_parallel_seq(m=m_log, n=args.n_vars, s=args.sample_size,
-                                                                           k_range=slice_k)
-    else:
-        dist_df, times_df, df_averages = AIkDistribution.func_parallel_non_parallel(m=m_log, n=args.n_vars,
-                                                                                    s=args.sample_size, k_range=slice_k)
-        # dist_df, times_df, df_averages = AIkDistribution.func_parallel_seq(m=m_log, n=args.n_vars, s=args.sample_size)
-    times_latex = times_df.to_latex(index=False, escape=False)
-
-    file_path = Path(
-        os.path.join(SCRIPT_DIR,
-                     f"results/IV/AIk_distributions/times_n_{args.n_vars}_sample_{args.sample_size}_{args.parallelize_by}_{args.k_min}_{args.k_max}.txt"))
-    save_raw_data_to_file(filename=file_path, data=times_latex)
-    print(dist_df)
-    dist_latex = dist_df[1].to_latex(index=False, escape=False)
-    if args.plot is True:
-        AIkDistribution.plot_dist(distribution_data=(df_averages, dist_df[0]), sample_size=args.sample_size,
-                                  n=args.n_vars,
-                                  parallelization_type=args.parallelize_by)
-    # AIkDistribution.plot_dist(distribution_data=(None, None), sample_size=args.sample_size, n=args.n_vars,
-    #                          save=True)
-    file_path = Path(
-        os.path.join(SCRIPT_DIR,
-                     f"results/IV/AIk_distributions/distribution_n_{args.n_vars}_sample_{args.sample_size}_{args.parallelize_by}_{args.k_min}_{args.k_max}.txt"))
-    save_raw_data_to_file(filename=file_path, data=dist_latex)
-
-    file_path = Path(
-        os.path.join(SCRIPT_DIR,
-                     f"results/IV/AIk_distributions/distribution_n_{args.n_vars}_sample_{args.sample_size}_{args.parallelize_by}_{args.k_min}_{args.k_max}_averages.txt"))
-    averages_latex = df_averages.to_latex(index=False, escape=False)
-    save_raw_data_to_file(filename=file_path, data=averages_latex)
+    # slice_k = list(range(args.n_vars + 1))
+    #
+    # if args.k_max is not None:
+    #     if args.k_max != args.k_min:
+    #         slice_k = list(range(args.k_min, args.k_max + 1))
+    #     else:
+    #         slice_k = [args.k_min]
+    # print(slice_k)
+    # m_log = int(math.log(args.n_vars, 2))
+    # if args.parallelize_by == 'slice':
+    #     dist_df, times_df, df_averages = AIkDistribution.func_parallel(m=m_log, n=args.n_vars, s=args.sample_size,
+    #                                                                    k_range=slice_k)
+    # elif args.parallelize_by == 'a':
+    #     dist_df, times_df, df_averages = AIkDistribution.func_parallel_seq(m=m_log, n=args.n_vars, s=args.sample_size,
+    #                                                                        k_range=slice_k)
+    # else:
+    #     dist_df, times_df, df_averages = AIkDistribution.func_parallel_non_parallel(m=m_log, n=args.n_vars,
+    #                                                                                 s=args.sample_size, k_range=slice_k)
+    #     # dist_df, times_df, df_averages = AIkDistribution.func_parallel_seq(m=m_log, n=args.n_vars, s=args.sample_size)
+    # times_latex = times_df.to_latex(index=False, escape=False)
+    #
+    # file_path = Path(
+    #     os.path.join(SCRIPT_DIR,
+    #                  f"results/IV/AIk_distributions/times_n_{args.n_vars}_sample_{args.sample_size}_{args.parallelize_by}_{args.k_min}_{args.k_max}.txt"))
+    # save_raw_data_to_file(filename=file_path, data=times_latex)
+    # print(dist_df)
+    # dist_latex = dist_df[1].to_latex(index=False, escape=False)
+    # if args.plot is True:
+    #     AIkDistribution.plot_dist(distribution_data=(df_averages, dist_df[0]), sample_size=args.sample_size,
+    #                               n=args.n_vars,
+    #                               parallelization_type=args.parallelize_by)
+    # # AIkDistribution.plot_dist(distribution_data=(None, None), sample_size=args.sample_size, n=args.n_vars,
+    # #                          save=True)
+    # file_path = Path(
+    #     os.path.join(SCRIPT_DIR,
+    #                  f"results/IV/AIk_distributions/distribution_n_{args.n_vars}_sample_{args.sample_size}_{args.parallelize_by}_{args.k_min}_{args.k_max}.txt"))
+    # save_raw_data_to_file(filename=file_path, data=dist_latex)
+    #
+    # file_path = Path(
+    #     os.path.join(SCRIPT_DIR,
+    #                  f"results/IV/AIk_distributions/distribution_n_{args.n_vars}_sample_{args.sample_size}_{args.parallelize_by}_{args.k_min}_{args.k_max}_averages.txt"))
+    # averages_latex = df_averages.to_latex(index=False, escape=False)
+    # save_raw_data_to_file(filename=file_path, data=averages_latex)

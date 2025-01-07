@@ -18,16 +18,26 @@ setup:
 	@$(info $(M) installing package)
 	pip install .
 
+.PHONY: setup-sage
+setup-sage:
+	@$(info $(M) installing package)
+	sage -pip install .
+
 .PHONY: setup-dev
 setup-dev:
 	@$(info $(M) installing package)
 	pip install -e .
 
+.PHONY: setup-sage-dev
+setup-sage-dev:
+	@$(info $(M) installing package)
+	sage -pip install -e .
+
 .PHONY: uninstall
 uninstall:
 	@$(info $(M) installing package)
 	pip-autoremove ${PROJECT_NAME} -y
-	pip3 uninstall ${PROJECT_NAME}
+	pip uninstall ${PROJECT_NAME}
 
 
 .PHONY: deps
