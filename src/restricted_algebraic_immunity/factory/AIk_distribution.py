@@ -310,7 +310,6 @@ class AIkDistribution:
             size = 0
             ti = 0
             for idx, v in enumerate(vectors):
-
                 if idx % 1000 == 0:
                     _log.info(f"iteration: {idx}")
                 t = time.time()
