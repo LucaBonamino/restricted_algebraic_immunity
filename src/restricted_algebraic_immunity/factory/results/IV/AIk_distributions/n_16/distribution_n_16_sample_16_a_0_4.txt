@@ -1,6 +1,6 @@
 \begin{tabular}{rrr}
 \toprule
- $k$ &  $AI_k(f)=d$ &  $p\left(AI_K(f) = d\right)$ \\
+ k &  aik &  aik_distribution \\
 \midrule
    0 &            0 &                        1.000 \\
    0 &            1 &                        0.000 \\

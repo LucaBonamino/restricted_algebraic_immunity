@@ -1,4 +1,6 @@
 import math
+import sys
+import time
 from itertools import combinations
 from multiprocessing import Pool
 from typing import List, Tuple, Union
@@ -77,7 +79,9 @@ class IVRestrictedAI:
         i = 1
         operations = []
         n_iters = len(z)
+
         while i < n_iters:
+            t = time.time()
             vander_monde_old = vander_monde
             vander_monde = IVRestrictedAI.compute_next(v_previous=vander_monde.copy(), support_slice=z[:i + 1],
                                                        monom_slice=e[:i + 1], idx=i, operations=operations)
@@ -101,6 +105,7 @@ class IVRestrictedAI:
             i += 1
             idx += 1
             operations += operations_i
+
         vander_monde_s = IVRestrictedAI.compute_v(z=s[:idx + 1], e=e[:idx + 1])
         vander_monde_s = IVRestrictedAI.fill_matrix_will_all_s(vander_monde_s.copy(), s[idx + 1:], e[:idx + 1])
         vander_monde_s, operations_s = vander_monde_s.row_echelon_full_matrix()
@@ -109,6 +114,7 @@ class IVRestrictedAI:
         r_s = vander_monde_s.rank()
         i = idx + 1
         s_len = len(s)
+
         while r_s <= math.ceil(s_len / 2):
             vander_monde = IVRestrictedAI.append_column_operations(vander_monde, z, e[i], operations)
             vander_monde_s = IVRestrictedAI.append_column_operations(vander_monde_s, s, e[i], operations_s)
@@ -151,8 +157,9 @@ class IVRestrictedAI:
         true_idxs = []
         false_idxs = []
         s_bin = []
+        t_len = len(self.t_table)
 
-        for i in range(len(self.t_table)):
+        for i in range(t_len):
             if self.t_table[i] == 1:
                 true_idxs.append(bin(s[i])[2:].zfill(self.n))
             else:
@@ -184,12 +191,11 @@ class IVRestrictedAI:
     def algebraic_immunity_dist(cls, s_image: List[int], s: List[int], n_vars: int, _verbose: bool = False,
                                 _hide: bool = False) -> int:
         f_ummu = IVRestrictedAI(truth_table=s_image, n_vars=n_vars)
-        if len(set(f_ummu.t_table)) == 1:
-            return int(0)
 
         z, z_c, s_bin = f_ummu.compute_z_for_dist(s)
+        if z == [] or z_c == []:
+            return 0
         e = cls.compute_monomials(n=f_ummu.n, r=f_ummu.n)
-
         args = [
                 (z, z_c, e, s_bin),
                 (z_c, z, e, s_bin)
