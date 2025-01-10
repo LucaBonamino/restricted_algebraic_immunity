@@ -1,9 +1,9 @@
+import random
+from typing import List
+
 import pandas as pd
 from sage.all import *
 from sage.crypto.boolean_function import BooleanFunction
-from typing import List
-import random
-
 from sage.rings.finite_rings.all import GF
 
 from restricted_algebraic_immunity.boolean_functions.boolean_function import CustomBooleanFunction
@@ -72,8 +72,7 @@ class DM24(CustomBooleanFunction):
         return BooleanFunction(tt)
 
     def tt_by_slices(self, tt):
-        return {sl.k: [v for idx,v in enumerate(tt) if idx in sl.domain] for sl in self.slices.slices}
-
+        return {sl.k: [v for idx, v in enumerate(tt) if idx in sl.domain] for sl in self.slices.slices}
 
     def evaluate_wrapper(self, v):
         if v == 0:
@@ -83,7 +82,7 @@ class DM24(CustomBooleanFunction):
         else:
             b_item = bin(v)[2:].zfill(self.n)[::-1]
             x = vector(GF(2), [Integer(item) for item in b_item])
-            return DM24.evaluate(n=self.n, u=self.u, v=self.v, n_max=self.n // 2, x=x)
+            return DM24.evaluate(n=self.n, u=self.u, v=self.v, x=x)
 
     def construct_truth_table(self):
         return [self.evaluate_wrapper(v=v) for v in range(2 ** self.n)]
@@ -94,7 +93,7 @@ class DM24(CustomBooleanFunction):
         return list(v) + list(vector(zeros_needed * [0]))
 
     @classmethod
-    def evaluate2(cls, n: int, x: vector, u: BooleanFunction, v: BooleanFunction, n_max: int):
+    def evaluate2(cls, n: int, x: vector, u, v, n_max: int):
         if n % 2 != 0:
             if x[-1] == 0:
                 return cls.evaluate(n=n - 1, x=x[:-1], u=u, v=v, n_max=n_max)
@@ -109,10 +108,10 @@ class DM24(CustomBooleanFunction):
             if sum(x) % 2 != 0:
                 if k1 % 2 != 0:
                     extended_v = cls.extend_input(n_max=n_max, v=x2)
-                    return int(u(extended_v))
+                    return u(x2)
                 else:
                     extended_v = cls.extend_input(n_max=n_max, v=x1)
-                    return (1 + int(v(extended_v))) % 2
+                    return (1 + v(x1)) % 2
             else:
                 if x1 == x2:
                     return cls.evaluate(n=n // 2, x=x1, u=u, v=v, n_max=n_max) \
@@ -126,36 +125,35 @@ class DM24(CustomBooleanFunction):
                     if k1 % 2 == 0:
                         if x1[i] > x2[i]:
                             extended_v = cls.extend_input(n_max=n_max, v=x2)
-                            return int(v(extended_v))
+                            return v(x2)
                         else:
                             extended_v = cls.extend_input(n_max=n_max, v=x1)
-                            return int(v(extended_v))
+                            return v(x1)
                     else:
                         return 1 if x1[i] > x2[i] else 0
 
     @classmethod
-    def evaluate(cls, n: int, x: vector, u: BooleanFunction, v: BooleanFunction, n_max: int):
+    def evaluate(cls, n: int, x: vector, u, v):
         if n % 2 != 0:
             if x[-1] == 0:
-                return cls.evaluate(n=n - 1, x=x[:-1], u=u, v=v, n_max=n_max)
+                return cls.evaluate(n=n - 1, x=x[:-1], u=u, v=v)
             else:
-                return (cls.evaluate(n=n - 1, x=x[:-1], u=u, v=v, n_max=n_max) + 1) % 2
+                return (cls.evaluate(n=n - 1, x=x[:-1], u=u, v=v) + 1) % 2
         else:
             x1 = x[:n // 2]
             x2 = x[n // 2:]
             k1 = sum(x1)
-            k2 = sum(x2)
             if sum(x) % 2 != 0:
                 if k1 % 2 != 0:
-                    extended_v = cls.extend_input(n_max=n_max, v=x2)
-                    return Integer(u(extended_v))
+                    # extended_v = cls.extend_input(n_max=n_max, v=x2)
+                    return u(x2)
                 else:
-                    extended_v = cls.extend_input(n_max=n_max, v=x1)
-                    return (1 + Integer(v(extended_v))) % 2
+                    # extended_v = cls.extend_input(n_max=n_max, v=x1)
+                    return (1 + v(x1)) % 2
             else:
                 if x1 == x2:
-                    return cls.evaluate(n=n // 2, x=x1, u=u, v=v, n_max=n_max) \
-                        if k1 % 2 == 0 else (1 + cls.evaluate(n=n // 2, x=x1, u=u, v=v, n_max=n_max)) % 2
+                    return cls.evaluate(n=n // 2, x=x1, u=u, v=v) \
+                        if k1 % 2 == 0 else (1 + cls.evaluate(n=n // 2, x=x1, u=u, v=v)) % 2
                 else:
                     i = 0
                     while i < len(x1) and x[i] == x[i + n // 2]:
@@ -164,11 +162,11 @@ class DM24(CustomBooleanFunction):
                         return 0
                     if k1 % 2 == 0:
                         if x[i] > x[n // 2 + i]:
-                            extended_v = cls.extend_input(n_max=n_max, v=x2)
-                            return v(extended_v)
+                            # extended_v = cls.extend_input(n_max=n_max, v=x2)
+                            return v(x2)
                         else:
-                            extended_v = cls.extend_input(n_max=n_max, v=x1)
-                            v(extended_v)
+                            # extended_v = cls.extend_input(n_max=n_max, v=x1)
+                            return v(x1)
                     else:
                         return 1 if x[i] > x[n // 2 + i] else 0
 
@@ -190,10 +188,11 @@ class DM24(CustomBooleanFunction):
     #     plotter.save_table_to_file(save_filename=file_name, dataframe=dataframe, caption=caption)
 
 
-class SubDM24(CustomBooleanFunction):
+class SubDM24:
 
     @staticmethod
-    def evaluate(x: vector, n: int) -> int:
+    def evaluate(x: vector) -> int:
+        n = log(len(x), 2)
         if n % 2 == 0:
             return (sum(x[i] * x[i + 1] for i in range(len(x) - 1))) % 2
         else:
@@ -209,8 +208,3 @@ class SubDM24(CustomBooleanFunction):
     def boolean_function(cls, n: int) -> BooleanFunction:
         tt = cls.construct_truth_table(n=n)
         return BooleanFunction(tt)
-
-
-def convert_number_to_bin_vector(v: int, n: int) -> vector:
-    bin_v = bin(v)[2:].zfill(n)[::-1]
-    return vector(GF(2), [Integer(item) for item in bin_v])

@@ -1,0 +1,9 @@
+\begin{tabular}{rrr}
+\toprule
+ $k$ &  $\mathbb{E}[T(AI_k)]$ &  $\mathbb{E}[AI_k]$ \\
+\midrule
+   0 &               0.000027 &                 0.0 \\
+   1 &               0.056621 &                 1.0 \\
+   2 &               0.000032 &                 0.0 \\
+\bottomrule
+\end{tabular}
