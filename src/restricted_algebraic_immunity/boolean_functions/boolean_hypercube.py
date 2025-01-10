@@ -1,4 +1,5 @@
 import itertools
+import sys
 import time
 
 from restricted_algebraic_immunity.inductive_reed_muller.IV import IVRestrictedAI

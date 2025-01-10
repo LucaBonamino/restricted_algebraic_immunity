@@ -13,10 +13,10 @@ from typing import List, Tuple, Dict
 import matplotlib.pyplot as plt
 import pandas as pd
 from matplotlib.ticker import MaxNLocator
-from numpy.distutils.from_template import item_re
 
 from sage.all import *
 
+from restricted_algebraic_immunity.boolean_functions.known_boolean_functions.DM24 import SubDM24, DM24
 from restricted_algebraic_immunity.factory.WPB_constructor import WPBFamily
 from restricted_algebraic_immunity.inductive_reed_muller.IV import IVRestrictedAI
 from restricted_algebraic_immunity.utils.logging import get_logger
@@ -44,9 +44,20 @@ class AIkDistribution:
 
     @staticmethod
     def run_immunity(sub_tt, slice_domain, n_vars):
+        assert len([item for item in sub_tt if item == 1]) == len(sub_tt) / 2
+        padded_v = [0 for _ in range(2**n_vars)]
+        for idx, val in zip(slice_domain, sub_tt):
+            padded_v[idx] = val
+        #print(bf.truth_table(format='int'))
+        print(padded_v)
+        assert len(padded_v) == 2**n_vars
         t = time.time()
-        aik = IVRestrictedAI.algebraic_immunity_dist(s_image=sub_tt,
-                                                     s=slice_domain, n_vars=n_vars, _hide=True)
+        aik = IVRestrictedAI.algebraic_immunity(truth_table=tuple(padded_v),
+                                               s=slice_domain, _hide=True)
+        # aik = IVRestrictedAI.algebraic_immunity(truth_table=padded_v,
+        #                                              s=slice_domain, _hide=True)
+        # aik = IVRestrictedAI.algebraic_immunity_dist(s_image=sub_tt,
+        #                                             s=slice_domain, n_vars=n_vars, _hide=True)
         dt = time.time() - t
         _log.info(f"Calculated AIk: dt: {dt}")
         return aik, dt
@@ -128,6 +139,7 @@ class AIkDistribution:
     def dict_to_aik_df(data):
         dfs = []
         df_dict = {}
+        print(data)
         for k, v in data.items():
             v_l = list(v)
             df = pd.DataFrame({
@@ -291,10 +303,10 @@ class AIkDistribution:
 
     @classmethod
     def func_parallel_non_parallel(cls, m: int, s: int, n: int, k_range: List[int]):
-        ais = {k: 0 for k in range(n + 1)}
-        probs = {k: 0 for k in range(n + 1)}
+        ais = {k: 0 for k in k_range}
+        probs = {k: 0 for k in k_range}
         family = WPBFamily(m=m)
-        times = {k: 0 for k in range(n + 1)}
+        times = {k: 0 for k in k_range}
         slices = family.slices
         for k in k_range:
             element = slices[k]
@@ -312,9 +324,14 @@ class AIkDistribution:
             for idx, v in enumerate(vectors):
                 if idx % 1000 == 0:
                     _log.info(f"iteration: {idx}")
+                padded_v = [0 for _ in range(2 ** n)]
+                for idx, val in zip(element.domain, v):
+                    padded_v[idx] = val
+                # print(bf.truth_table(format='int'))
+                print(padded_v)
                 t = time.time()
-                immunity = IVRestrictedAI.algebraic_immunity_dist(s_image=v,
-                                                                  s=element.domain[::-1], n_vars=n, _hide=True)
+                immunity = IVRestrictedAI.algebraic_immunity(truth_table=tuple(padded_v),
+                                                                  s=element.domain[::-1], _hide=True)
                 dt = time.time() - t
                 _log.debug(f"execution time: {dt}")
                 ti += dt
@@ -327,16 +344,15 @@ class AIkDistribution:
             probs[element.k] = {k: v / size for k, v in prob.items()}
             # counts = Counter(results)
             # probs[element.k] = {i: counts.get(i, 0) / len(results) for i in range(n + 1)}
-        ks = [item.k for item in family.slices]
+        ks = k_range
         df_times = pd.DataFrame({
-            r'$k$': [item.k for item in family.slices],
+            r'$k$': k_range,
             r'$\mathbb{E}[T(AI_k)]$': times.values()
         })
         df_averages = pd.DataFrame({
             'k': ks,
             'average': ais.values()
         })
-
         probs_df = cls.dict_to_aik_df(data=probs)
         return probs_df, df_times, df_averages
 

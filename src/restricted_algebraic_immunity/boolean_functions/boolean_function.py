@@ -2,8 +2,11 @@ from abc import ABC, abstractmethod
 
 import pandas as pd
 
+from sage.all import *
+
 from restricted_algebraic_immunity.boolean_functions.boolean_hypercube import Slices
 from restricted_algebraic_immunity.entities.enums import ReturnType
+from restricted_algebraic_immunity.utils.utils import partition
 
 
 class CustomBooleanFunction(ABC):
@@ -52,8 +55,29 @@ class CustomBooleanFunction(ABC):
     @classmethod
     def immunity_f_k(cls, f, n, return_type: ReturnType = None, _verbose: bool = False, _hide: bool = True):
         sls = Slices(n_variables=n)
+        print(sls)
         aik_s, dts = zip(*[sl.immunity_f_k(f=f, _verbose=_verbose, _hide=_hide) for sl in sls.slices])
+        print(aik_s, dts)
         if return_type == ReturnType.DATA_FRAME:
             return cls.convert_to_df(partition=sls.partition, immunity_list=aik_s, dts=dts)
         else:
             return aik_s
+
+
+    @staticmethod
+    def is_wpb(t_table, n_vars):
+        p = partition(n_vars)
+        if t_table[0] == 1 or t_table[-1] == 0:
+            return False
+        sls = Slices(n_vars)
+        for sl in sls.slices:
+            if sl.k == 0 or sl.k == n_vars:
+                continue
+            print(n_vars, sl.k)
+            b = binomial(n_vars, sl.k)
+            it = len([t_table[item] for item in p[sl.k] if t_table[item] == 1])
+            if it != b/2:
+                return False
+        return True
+
+
