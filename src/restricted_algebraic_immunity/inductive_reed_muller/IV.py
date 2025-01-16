@@ -81,7 +81,6 @@ class IVRestrictedAI:
         n_iters = len(z)
 
         while i < n_iters:
-            t = time.time()
             vander_monde_old = vander_monde
             vander_monde = IVRestrictedAI.compute_next(v_previous=vander_monde.copy(), support_slice=z[:i + 1],
                                                        monom_slice=e[:i + 1], idx=i, operations=operations)
@@ -99,9 +98,11 @@ class IVRestrictedAI:
                         continue
                 else:
                     new_index = i + vanish_index[0] + 1
-                    tmp = z[i + 1]
-                    z[i + 1] = z[new_index]
-                    z[new_index] = tmp
+                    z[i + 1], z[new_index] = z[new_index], z[i + 1]
+
+                    # tmp = z[i + 1]
+                    # z[i + 1] = z[new_index]
+                    # z[new_index] = tmp
             i += 1
             idx += 1
             operations += operations_i

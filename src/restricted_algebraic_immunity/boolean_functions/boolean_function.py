@@ -55,9 +55,7 @@ class CustomBooleanFunction(ABC):
     @classmethod
     def immunity_f_k(cls, f, n, return_type: ReturnType = None, _verbose: bool = False, _hide: bool = True):
         sls = Slices(n_variables=n)
-        print(sls)
         aik_s, dts = zip(*[sl.immunity_f_k(f=f, _verbose=_verbose, _hide=_hide) for sl in sls.slices])
-        print(aik_s, dts)
         if return_type == ReturnType.DATA_FRAME:
             return cls.convert_to_df(partition=sls.partition, immunity_list=aik_s, dts=dts)
         else:
@@ -76,7 +74,7 @@ class CustomBooleanFunction(ABC):
             print(n_vars, sl.k)
             b = binomial(n_vars, sl.k)
             it = len([t_table[item] for item in p[sl.k] if t_table[item] == 1])
-            if it != b/2:
+            if it != b//2:
                 return False
         return True
 
