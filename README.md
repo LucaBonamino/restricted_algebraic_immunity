@@ -16,8 +16,11 @@ To use Algorithm 3 and run Application 2, any Python interpreter between 3.8 and
 
 ## Installation
 
-### gf2_linear_algebra_utils
-The project depends on the <code>gf2_linear_algebra_utils</code> python package implemented in Rust. The package is located in the <i>gf2_linear_algebra_utils</i> and its installable from wheels or from by creating a build from your system using <i>maturin</i>.
+To use the full functionality of the repository, install and use the package in a python interpreter having the <i>SageMath</i> library installed.</br>
+In particular, to use Algorithm 3, the <i>SageMath</i> library is not needed, but to use the command line interface getting installed with the package, it is needed even if you only intend to run Algorithm 3.
+
+### The gf2_linear_algebra_utils package as dependency
+The project depends on the <code>gf2_linear_algebra_utils</code> python package which is implemented in Rust. To ensure ananymity in the submission, such package has not been published to <b>PyPI</b>, but it is located in the <i>gf2_linear_algebra_utils</i>. Therefore, its installations may be done by creating a build locally using <i>maturin</i> or getting the wheels corresponding to your system from the GitHub release of the package.
 
 
 ### SageMath
