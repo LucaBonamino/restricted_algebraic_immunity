@@ -94,7 +94,8 @@ class IVRestrictedAI:
                         return e[i].count('1')
                     else:
                         vander_monde = vander_monde_old
-                        e.remove(e[i])
+                        del e[i]
+                        # e.remove(e[i])
                         continue
                 else:
                     new_index = i + vanish_index[0] + 1
