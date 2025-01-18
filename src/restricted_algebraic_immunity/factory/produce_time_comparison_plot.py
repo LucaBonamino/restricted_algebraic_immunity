@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 import pandas as pd
 
 
-def main(df_iv, df_rmf, sample_size):
+def plot_and_save(df_iv, df_rmf, sample_size):
     max_n = max(df_iv['n'].values)
     pre_computation_time = df_rmf['pre_computation_time'][0]
 
@@ -37,21 +37,25 @@ def main(df_iv, df_rmf, sample_size):
     filename = os.path.join(script_dir, f"results/plot_{sample_size}.png")
     plt.savefig(filename)
 
+def main(sample_size):
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+    file_path_1 = os.path.join(script_dir, f"results/IV/times_{sample_size}.csv")
+    file_path_2 = os.path.join(script_dir, f"results/FRM/times_{sample_size}.csv")
+
+    df_1 = pd.read_csv(f'{file_path_1}')
+    df_2 = pd.read_csv(f'{file_path_2}')
+
+    plot_and_save(df_1, df_2, args.sample_size)
+
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(
         prog='Time Plotter',
         description='Plot the average AIk execution time for k = ceil(n/2) for different values of n',
     )
-    parser.add_argument('-N', '--max_n', help='maximum value of n', type=int)
     parser.add_argument('-O', '--sample_size', help='sample_size', type=int)
     args = parser.parse_args()
 
-    script_dir = os.path.dirname(os.path.abspath(__file__))
-    file_path_1 = os.path.join(script_dir, f"results/IV/times_{args.sample_size}.csv")
-    file_path_2 = os.path.join(script_dir, f"results/FRM/times_{args.sample_size}.csv")
+    main(sample_size=args.sample_size)
 
-    df_1 = pd.read_csv(f'{file_path_1}')
-    df_2 = pd.read_csv(f'{file_path_2}')
 
-    main(df_1, df_2, args.sample_size)

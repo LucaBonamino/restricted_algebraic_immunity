@@ -5,7 +5,7 @@ import time
 
 import pandas as pd
 
-from WPB_constructor import WAPBFamily
+from restricted_algebraic_immunity.factory.WPB_constructor import WAPBFamily
 from restricted_algebraic_immunity.utils.logging import get_logger
 
 _log = get_logger()

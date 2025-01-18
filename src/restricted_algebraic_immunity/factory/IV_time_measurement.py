@@ -2,7 +2,7 @@ import argparse
 import os
 
 
-from time_comparison import TimeMeasurement
+from restricted_algebraic_immunity.factory.time_comparison import TimeMeasurement
 from restricted_algebraic_immunity.inductive_reed_muller.IV import IVRestrictedAI
 from restricted_algebraic_immunity.utils.logging import get_logger
 
@@ -17,6 +17,15 @@ class IVTimeMeasurement(TimeMeasurement):
         return cls.measure_time_for_ai_e_n_half_by_alg(alg=IVRestrictedAI, max_n=max_n, sample_size=sample_size, parallel=parallel)
 
 
+def main(max_n, sample_size):
+    times, aik_s = IVTimeMeasurement.measure_time_for_ai_e_n_half(max_n=max_n, sample_size=sample_size,
+                                                                  parallel=False)
+    print(times)
+    print()
+    print(aik_s)
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+    file_path = os.path.join(script_dir, f"results/IV/times_{sample_size}_unique.csv")
+    times.to_csv(file_path, index=False)
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(
@@ -27,13 +36,9 @@ if __name__ == '__main__':
     parser.add_argument('-O', '--sample_size', help='sample_size', type=int, default=10000)
     args = parser.parse_args()
 
-    times, aik_s = IVTimeMeasurement.measure_time_for_ai_e_n_half(max_n=args.max_n, sample_size=args.sample_size, parallel=False)
-    print(times)
-    print()
-    print(aik_s)
-    script_dir = os.path.dirname(os.path.abspath(__file__))
-    file_path = os.path.join(script_dir, f"results/IV/times_{args.sample_size}_unique.csv")
-    times.to_csv(file_path, index=False)
+    main(max_n=args.max_n, sample_size=args.sample_size)
+
+
 
     #file_path = os.path.join(script_dir, f"results/IV/ai_ks_{args.sample_size}.csv")
     #aik_s.to_csv(file_path, index=False)
