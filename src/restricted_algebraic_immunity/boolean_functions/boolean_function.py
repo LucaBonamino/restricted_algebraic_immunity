@@ -66,7 +66,7 @@ class CustomBooleanFunction(ABC):
     def is_wpb(t_table, n_vars):
         p = partition(n_vars)
         if t_table[0] == 1 or t_table[-1] == 0:
-            return False
+            return False, None
         sls = Slices(n_vars)
         for sl in sls.slices:
             if sl.k == 0 or sl.k == n_vars:
@@ -75,7 +75,7 @@ class CustomBooleanFunction(ABC):
             b = binomial(n_vars, sl.k)
             it = len([t_table[item] for item in p[sl.k] if t_table[item] == 1])
             if it != b//2:
-                return False
-        return True
+                return False, [t_table[item] for item in p[sl.k]]
+        return True, None
 
 

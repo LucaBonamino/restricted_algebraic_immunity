@@ -4,3 +4,5 @@ pip-autoremove
 algebraic_immunity_utils==0.2.1
 pydantic<2
 typer>=0.15.1,<2
+
+WAPB@git+https://${GITHUB_TOKEN}@github.com/programmingAthlete/WAPB.git

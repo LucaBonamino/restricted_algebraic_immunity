@@ -9,6 +9,8 @@ import random
 from restricted_algebraic_immunity.full_reed_muller.FRM import FRMRestrictedAI
 from restricted_algebraic_immunity.inductive_reed_muller.IV import IVRestrictedAI
 
+from WAPB.parsed_AIk import AIk
+
 
 def partition(n):
     """
@@ -153,3 +155,21 @@ class TestRestrictedEfficientImmunityExtensive(unittest.TestCase):
         ai_k_n = immunity_obj.algebraic_immunity(f=f, s=s)
         print(r)
         self.assertEqual(ai_k_n, r)
+
+    def test_cmr(self):
+        tb = (True, False, False, True, True, False, False, False, False, True, True, False, False, True, True, True, True, False, False, True, True, False, False, False, False, True, True, False, True, False, False, False, False, True, True, False, False, True, True, True, True, False, False, True, True, False, False, False, False, True, True, False, False, True, True, True, True, False, False, True, False, True, True, True, True, False, False, True, True, False, False, False, False, True, True, False, False, True, True, True, True, False, False, True, True, False, False, False, False, True, True, False, True, False, False, False, False, True, True, False, False, True, True, True, True, False, False, True, True, False, False, False, False, True, True, False, False, True, True, True, True, False, False, True, False, True, True, True, True, False, False, True, True, False, False, False, False, True, True, False, False, True, True, True, True, False, False, True, True, False, False, False, False, True, True, False, True, False, False, False, False, True, True, False, False, True, True, True, True, False, False, True, True, False, False, False, False, True, True, False, False, True, True, True, True, False, False, True, False, True, True, True, True, False, False, True, True, False, False, False, False, True, True, False, False, True, True, True, True, False, False, True, True, False, False, False, False, True, True, False, True, False, False, False, False, True, True, False, False, True, True, True, True, False, False, True, True, False, False, False, False, True, True, False, False, True, True, True, True, False, False, True, False, True, True, True)
+        n = 8
+        p = partition(n=Integer(n))
+
+        for k in range(n+1):
+            s = p[k]
+            f = BooleanFunction([int(item) for item in tb])
+            r = IVRestrictedAI.algebraic_immunity(f, s)
+            immunity_obj = FRMRestrictedAI()
+            ai_k_n = immunity_obj.algebraic_immunity(f=f, s=s)
+            ai_k_n_n = AIk(k, f)
+
+            print(r)
+            self.assertEqual(ai_k_n, r)
+            self.assertEqual(ai_k_n, ai_k_n_n)
+
