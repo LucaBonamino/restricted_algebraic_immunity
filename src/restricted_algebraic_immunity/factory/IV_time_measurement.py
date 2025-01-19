@@ -24,7 +24,7 @@ def main(max_n, sample_size):
     print()
     print(aik_s)
     script_dir = os.path.dirname(os.path.abspath(__file__))
-    file_path = os.path.join(script_dir, f"results/IV/times_{sample_size}_unique.csv")
+    file_path = os.path.join(script_dir, f"results/IV/times_{max_n}_{sample_size}.csv")
     times.to_csv(file_path, index=False)
 
 if __name__ == '__main__':

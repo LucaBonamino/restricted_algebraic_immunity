@@ -11,8 +11,8 @@ def plot_and_save(df_iv, df_rmf, sample_size):
 
     print(df_iv)
     # Plot the data
-    plt.plot(df_rmf['n'], df_rmf['$T(AI_{n/2})$'], marker='o', label="Algorithm 1")
-    plt.plot(df_iv['n'], df_iv['$T(AI_{n/2})$'], marker='x', label="Algorithm 3")
+    plt.plot(df_rmf['n'], df_rmf['Average execution times'], marker='o', label="Algorithm 1")
+    plt.plot(df_iv['n'], df_iv['Average execution times'], marker='x', label="Algorithm 3")
     plt.xticks(range(int(min(df_iv['n'])), int(max(df_iv['n'])) + 1))
     plt.xlabel(r'$n$')
     plt.ylabel(r'$\mathbb{E}\left[T\left(AI_{\lceil{n/2}\rceil}\right)\right]$', rotation=90)
@@ -34,13 +34,13 @@ def plot_and_save(df_iv, df_rmf, sample_size):
     plt.show()
 
     script_dir = os.path.dirname(os.path.abspath(__file__))
-    filename = os.path.join(script_dir, f"results/plot_{sample_size}.png")
+    filename = os.path.join(script_dir, f"results/plot_{max_n}_{sample_size}.png")
     plt.savefig(filename)
 
-def main(sample_size):
+def main(max_n, sample_size):
     script_dir = os.path.dirname(os.path.abspath(__file__))
-    file_path_1 = os.path.join(script_dir, f"results/IV/times_{sample_size}.csv")
-    file_path_2 = os.path.join(script_dir, f"results/FRM/times_{sample_size}.csv")
+    file_path_1 = os.path.join(script_dir, f"results/IV/times_{max_n}_{sample_size}.csv")
+    file_path_2 = os.path.join(script_dir, f"results/FRM/times_{max_n}_{sample_size}.csv")
 
     df_1 = pd.read_csv(f'{file_path_1}')
     df_2 = pd.read_csv(f'{file_path_2}')
@@ -53,9 +53,10 @@ if __name__ == '__main__':
         prog='Time Plotter',
         description='Plot the average AIk execution time for k = ceil(n/2) for different values of n',
     )
-    parser.add_argument('-O', '--sample_size', help='sample_size', type=int)
+    parser.add_argument('-O', '--sample_size', help='Sample size', type=int)
+    parser.add_argument('-N', '--max_n', help='Maximum number of variables', type=int)
     args = parser.parse_args()
 
-    main(sample_size=args.sample_size)
+    main(max_n=args.max_n, sample_size=args.sample_size)
 
 

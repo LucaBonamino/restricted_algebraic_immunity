@@ -27,7 +27,8 @@ def main(max_n, sample_size):
     print(aik_s)
     times['pre_computation_time'] = t
     script_dir = os.path.dirname(os.path.abspath(__file__))
-    file_path = os.path.join(script_dir, f"results/FRM/times_{sample_size}_unique.csv")
+    # file_path = os.path.join(script_dir, f"results/FRM/times_{sample_size}_unique.csv")
+    file_path = os.path.join(script_dir, f"results/FRM/times_{max_n}_{sample_size}.csv")
     times.to_csv(file_path, index=False)
 
 

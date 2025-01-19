@@ -25,6 +25,7 @@ def measure_frm_times(
 
 @app.command('comparison-plot')
 def ai_k_lt(
-        sample_size: int = typer.Argument(help="Sample size")
+        sample_size: int = typer.Option(help="Sample size"),
+        max_n: int = typer.Option(help="Maximum number of variables")
 ):
-    main_plot_comparison(sample_size=sample_size)
+    main_plot_comparison(max_n=max_n, sample_size=sample_size)

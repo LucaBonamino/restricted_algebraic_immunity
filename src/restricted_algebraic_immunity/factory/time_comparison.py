@@ -75,6 +75,6 @@ class TimeMeasurement:
                         times[n] = sum(t_n) / counter
                 # ai_ks_d[n] = sum(ai_ks) / counter
                 _log.info(f"AIk calculated on all restricted truth table of {n} variables. Average time: {times[n]}")
-        df_times = pd.DataFrame(times.items(), columns=["n", r"$T(AI_{n/2})$"])
+        df_times = pd.DataFrame(times.items(), columns=["n", "Average execution times"])
         # df_ai_k = pd.DataFrame(ai_ks_d.items(), columns=["n", r"$AI_{n/2}$"])
         return df_times, None
