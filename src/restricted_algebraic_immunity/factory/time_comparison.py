@@ -20,13 +20,13 @@ def run_immunity(method, vector, domain, n):
 class TimeMeasurement:
 
     @staticmethod
-    def measure_time_for_ai_e_n_half_by_alg(alg, max_n: int = 17, sample_size: int = 1000, parallel=False):
+    def measure_time_for_ai_e_n_half_by_alg(alg, max_n: int, sample_size: int = 1000, parallel=False):
         method = getattr(alg, "algebraic_immunity_dist")
 
         times = {}
         ai_ks_d = {}
-
-        itera = [12]
+        itera = range(1, max_n+1)
+        # itera = [12]
         for n in itera:
             times[n] = 0
             k = math.ceil(n / 2)

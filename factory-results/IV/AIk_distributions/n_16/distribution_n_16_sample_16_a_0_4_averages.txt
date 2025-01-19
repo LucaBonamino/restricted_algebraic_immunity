@@ -1,0 +1,11 @@
+\begin{tabular}{rr}
+\toprule
+ k &  average \\
+\midrule
+ 0 &    0.000 \\
+ 1 &    1.000 \\
+ 2 &    2.000 \\
+ 3 &    3.000 \\
+ 4 &    3.875 \\
+\bottomrule
+\end{tabular}

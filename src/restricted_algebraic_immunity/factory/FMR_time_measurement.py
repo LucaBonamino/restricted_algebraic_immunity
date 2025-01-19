@@ -2,6 +2,7 @@ import argparse
 import os
 
 from restricted_algebraic_immunity.full_reed_muller.FRM import FRMRestrictedAI
+from restricted_algebraic_immunity.full_reed_muller.pre_compute import pre_compute_all
 from restricted_algebraic_immunity.utils.logging import get_logger
 from restricted_algebraic_immunity.factory.time_comparison import TimeMeasurement
 
@@ -17,8 +18,8 @@ class FMRTimeMeasurement(TimeMeasurement):
 
 
 def main(max_n, sample_size):
-    # t = pre_compute_all(n_vars=args.max_n)
-    t = 276.2263057231903
+    t = pre_compute_all(n_vars=max_n)
+    # t = 276.2263057231903
 
     times, aik_s = FMRTimeMeasurement.measure_time_for_ai_e_n_half(max_n=max_n, sample_size=sample_size)
     print(times)
@@ -35,8 +36,8 @@ if __name__ == '__main__':
         prog='Time Calculator',
         description='Calculates the average AIk execution time for k = ceil(n/2) for different values of n',
     )
-    parser.add_argument('-N', '--max_n', help='maximum value of n', type=int, default=5)
-    parser.add_argument('-O', '--sample_size', help='sample_size', type=int, default=10000)
+    parser.add_argument('-N', '--max_n', help='maximum value of n', type=int, required=True)
+    parser.add_argument('-O', '--sample_size', help='sample_size', type=int, required=True)
     args = parser.parse_args()
 
     main(max_n=args.max_n, sample_size=args.sample_size)

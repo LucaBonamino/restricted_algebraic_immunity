@@ -45,7 +45,7 @@ def main(sample_size):
     df_1 = pd.read_csv(f'{file_path_1}')
     df_2 = pd.read_csv(f'{file_path_2}')
 
-    plot_and_save(df_1, df_2, args.sample_size)
+    plot_and_save(df_1, df_2, sample_size)
 
 
 if __name__ == '__main__':

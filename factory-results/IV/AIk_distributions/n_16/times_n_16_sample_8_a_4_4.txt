@@ -1,0 +1,7 @@
+\begin{tabular}{rrr}
+\toprule
+ $k$ &  $\mathbb{E}[T(AI_k)]$ &  $\mathbb{E}[AI_k]$ \\
+\midrule
+   4 &             128.757706 &                 4.0 \\
+\bottomrule
+\end{tabular}

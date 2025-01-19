@@ -10,7 +10,7 @@ app = typer.Typer(pretty_exceptions_show_locals=False, no_args_is_help=True)
 @app.command('FRM-time-measurements')
 def measure_iv_times(
         max_n: int = typer.Option(help="Maximum number of variables"),
-        sample_size: int = typer.Option(default=int(2 ** 10), help="Sample size")
+        sample_size: int = typer.Option(help="Sample size")
 ):
     main_fmr_times(max_n, sample_size)
 
@@ -18,7 +18,7 @@ def measure_iv_times(
 @app.command('IV-time-measurements')
 def measure_frm_times(
         max_n: int = typer.Option(help="Maximum number of variables"),
-        sample_size: int = typer.Option(default=int(2 ** 10), help="Sample size")
+        sample_size: int = typer.Option(help="Sample size")
 ):
     main_iv_times(max_n, sample_size)
 
