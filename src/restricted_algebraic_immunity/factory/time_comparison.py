@@ -5,7 +5,7 @@ import time
 
 import pandas as pd
 
-from WPB_constructor import WAPBFamily
+from restricted_algebraic_immunity.factory.WPB_constructor import WAPBFamily
 from restricted_algebraic_immunity.utils.logging import get_logger
 
 _log = get_logger()
@@ -20,13 +20,13 @@ def run_immunity(method, vector, domain, n):
 class TimeMeasurement:
 
     @staticmethod
-    def measure_time_for_ai_e_n_half_by_alg(alg, max_n: int = 17, sample_size: int = 1000, parallel=False):
+    def measure_time_for_ai_e_n_half_by_alg(alg, max_n: int, sample_size: int = 1000, parallel=False):
         method = getattr(alg, "algebraic_immunity_dist")
 
         times = {}
         ai_ks_d = {}
-
-        itera = [12]
+        itera = range(1, max_n+1)
+        # itera = [12]
         for n in itera:
             times[n] = 0
             k = math.ceil(n / 2)
@@ -75,6 +75,6 @@ class TimeMeasurement:
                         times[n] = sum(t_n) / counter
                 # ai_ks_d[n] = sum(ai_ks) / counter
                 _log.info(f"AIk calculated on all restricted truth table of {n} variables. Average time: {times[n]}")
-        df_times = pd.DataFrame(times.items(), columns=["n", r"$T(AI_{n/2})$"])
+        df_times = pd.DataFrame(times.items(), columns=["n", "Average execution times"])
         # df_ai_k = pd.DataFrame(ai_ks_d.items(), columns=["n", r"$AI_{n/2}$"])
         return df_times, None

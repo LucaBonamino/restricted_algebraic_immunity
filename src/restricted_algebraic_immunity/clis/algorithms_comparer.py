@@ -1,32 +1,31 @@
 import typer
 
-from restricted_algebraic_immunity.factory.AIk_of_published_functions import tl, dm_24, zn_23, cmr
+from restricted_algebraic_immunity.factory.FMR_time_measurement import main as main_fmr_times
+from restricted_algebraic_immunity.factory.IV_time_measurement import main as main_iv_times
+from restricted_algebraic_immunity.factory.produce_time_comparison_plot import main as main_plot_comparison
 
 app = typer.Typer(pretty_exceptions_show_locals=False, no_args_is_help=True)
 
 
-@app.command('ZS23')
-def ai_k_of_zs_24(
-        n: int = typer.Option(16, help="Number of variables"),
+@app.command('FRM-time-measurements')
+def measure_iv_times(
+        max_n: int = typer.Option(help="Maximum number of variables"),
+        sample_size: int = typer.Option(help="Sample size")
 ):
-    print(zn_23(n), True)
+    main_fmr_times(max_n, sample_size)
 
 
-@app.command('DM24')
-def ai_k_of_dm_24(
-        n: int = typer.Option(16, help="Number of variables"),
+@app.command('IV-time-measurements')
+def measure_frm_times(
+        max_n: int = typer.Option(help="Maximum number of variables"),
+        sample_size: int = typer.Option(help="Sample size")
 ):
-   print(dm_24(n), True)
+    main_iv_times(max_n, sample_size)
 
 
-@app.command('TL19')
+@app.command('comparison-plot')
 def ai_k_lt(
-        n: int = typer.Option(16, help="Number of variables"),
+        sample_size: int = typer.Option(help="Sample size"),
+        max_n: int = typer.Option(help="Maximum number of variables")
 ):
-    print(tl(n), True)
-
-@app.command('CMR')
-def ai_k_lt(
-        n: int = typer.Option(16, help="Number of variables"),
-):
-    print(cmr(n, True))
+    main_plot_comparison(max_n=max_n, sample_size=sample_size)
