@@ -27,7 +27,7 @@ def calculate_distribution(
         k_max: int = typer.Option(None, help='Maximum value of k.'),
         parallelize_by: ParallelizationType = typer.Option(ParallelizationType.SLICES.value,
                                                            help='Type of parallelization.'),
-        algorithm: Algorithm = typer.Option(help="algorithm to use."),
+        algorithm: Algorithm = typer.Option(Algorithm.FRM.value, help="algorithm to use."),
         plot: bool = typer.Option(False, help='Produce and save plot.')
 ):
     main(n=n, k_max=k_max, k_min=k_min, sample_size=sample_size, parallelize_by=parallelize_by, plot=plot, algorithm=algorithm)

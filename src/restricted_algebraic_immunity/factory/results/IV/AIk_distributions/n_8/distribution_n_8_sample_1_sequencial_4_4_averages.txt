@@ -1,7 +1,0 @@
-\begin{tabular}{rr}
-\toprule
- k &  average \\
-\midrule
- 4 &      3.0 \\
-\bottomrule
-\end{tabular}

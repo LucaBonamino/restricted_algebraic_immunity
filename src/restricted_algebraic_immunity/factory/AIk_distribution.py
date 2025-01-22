@@ -1,8 +1,6 @@
 import argparse
 import enum
-import math
 import multiprocessing
-import os
 import time
 from concurrent.futures import ProcessPoolExecutor
 from functools import partial
@@ -11,10 +9,12 @@ from typing import List, Tuple, Dict
 
 import matplotlib.pyplot as plt
 import pandas as pd
+from cvxopt.lapack import pttrf
 from matplotlib.ticker import MaxNLocator
 from sage.all import *
+from sympy.logic.boolalg import BooleanFunction
 
-from restricted_algebraic_immunity.factory.WPB_constructor import WPBFamily
+from restricted_algebraic_immunity.factory.WPB_constructor import WPBFamily, BalancedSlice
 from restricted_algebraic_immunity.full_reed_muller.FRM import FRMRestrictedAI
 from restricted_algebraic_immunity.inductive_reed_muller.IV import IVRestrictedAI
 from restricted_algebraic_immunity.utils.logging import get_logger
@@ -38,92 +38,113 @@ class ParallelizationType(enum.Enum):
     SEQUENCIAL = 'sequencial'
 
 
+class Algorithm(enum.Enum):
+    FRM = '1'
+    IV = '3'
+
+
 class AIkDistribution:
 
     @staticmethod
-    def run_immunity(sub_tt, slice_domain, n_vars):
-        assert len([item for item in sub_tt if item == 1]) == len(sub_tt) / 2
-        padded_v = [0 for _ in range(2 ** n_vars)]
-        for idx, val in zip(slice_domain, sub_tt):
-            padded_v[idx] = val
-        # print(bf.truth_table(format='int'))
-        print(padded_v)
-        assert len(padded_v) == 2 ** n_vars
-        t = time.time()
-        aik = IVRestrictedAI.algebraic_immunity(truth_table=tuple(padded_v),
-                                                s=slice_domain, _hide=True)
-        # aik = IVRestrictedAI.algebraic_immunity(truth_table=padded_v,
-        #                                              s=slice_domain, _hide=True)
-        # aik = IVRestrictedAI.algebraic_immunity_dist(s_image=sub_tt,
-        #                                             s=slice_domain, n_vars=n_vars, _hide=True)
-        dt = time.time() - t
+    def run_immunity(sub_tt: List[int], slice_domain: List[int], n_vars: int, algorithm: Algorithm,
+                     assert_wpb: bool = True, padded_sub_tt: bool = False):
+        if assert_wpb is True:
+            assert len([item for item in sub_tt if item == 1]) == len(sub_tt) / 2
+        if algorithm == Algorithm.FRM:
+            immu_obj = FRMRestrictedAI(n_max=n_vars)
+            if padded_sub_tt is True:
+                padded_v = [0 for _ in range(2 ** n_vars)]
+                for idx, val in zip(slice_domain, sub_tt):
+                    padded_v[idx] = val
+                t = time.time()
+                aik = immu_obj.algebraic_immunity(f=BooleanFunction(padded_v), s=slice_domain[::-1])
+                dt = time.time() - t
+            else:
+                t = time.time()
+                aik = immu_obj.algebraic_immunity_dist(s_image=sub_tt, s=slice_domain[::-1], n_vars=n_vars)
+                dt = time.time() - t
+        elif algorithm == Algorithm.IV:
+            if padded_sub_tt is True:
+                padded_v = [0 for _ in range(2 ** n_vars)]
+                for idx, val in zip(slice_domain, sub_tt):
+                    padded_v[idx] = val
+                t = time.time()
+                aik = IVRestrictedAI.algebraic_immunity(truth_table=padded_v, s=slice_domain[::-1])
+                dt = time.time() - t
+            else:
+                t = time.time()
+                aik = IVRestrictedAI.algebraic_immunity_dist(s_image=sub_tt, s=slice_domain[::-1], n_vars=n_vars)
+                dt = time.time() - t
+        else:
+            raise Exception("Unknown algorithm")
         _log.info(f"Calculated AIk: dt: {dt}")
         return aik, dt
 
     @classmethod
-    def compute_ai_per_slice_parallel(cls, element, s, n):
-        print("Sample size", s)
+    def compute_ai_per_slice_parallel(cls, element: BalancedSlice, s: int, n: int, algorithm: Algorithm):
+        _log.info(f"Sample_size: {s}")
         immu = {a: 0 for a in range(int(math.ceil(n) / 2) + 1)}
         helf = math.ceil(len(element.domain) / 2)
-        if binomial(len(element.domain), helf) <= s:
-            vectors = element.generate_wapb_vectors()
+        if element.k == 0:
+            v = [0]
+            aik, dt = cls.run_immunity(v, element.domain, n, algorithm, False)
+            ai_k = [aik]
+            vectors = [v]
+            dts = [dt]
+        elif element.k == n:
+            v = [1]
+            aik, dt = cls.run_immunity(v, element.domain, n, algorithm, False)
+            ai_k = [aik]
+            vectors = [v]
+            dts = [dt]
         else:
-            vectors = element.build_wpb_vectors(sample_size=s, parallel=True)
+            if binomial(len(element.domain), helf) <= s:
+                vectors = element.generate_wapb_vectors()
+            else:
+                vectors = element.build_wpb_vectors(sample_size=s)
 
-        _log.info(f"Built all vectors for slice {element.k}: {len(vectors)} elements")
+            _log.info(f"Built all vectors for slice {element.k}: {len(vectors)} elements")
+            partial_process_item = partial(cls.run_immunity, slice_domain=element.domain[::-1], n_vars=n,
+                                           algorithm=algorithm)
 
-        partial_process_item = partial(cls.run_immunity, slice_domain=element.domain[::-1], n_vars=n)
+            workers = multiprocessing.cpu_count() // 2
 
-        workers = multiprocessing.cpu_count() // 2
-
-        with ProcessPoolExecutor(workers) as executor:
-            results = list(executor.map(partial_process_item, vectors))
-        # print(results)
-        _log.info(f"Calculated all AIk for slice k {element.k}")
-        ai_k, dts = zip(*results)
+            with ProcessPoolExecutor(workers) as executor:
+                results = list(executor.map(partial_process_item, vectors))
+            # print(results)
+            _log.info(f"Calculated all AIk for slice k {element.k}")
+            ai_k, dts = zip(*results)
         le = len(vectors)
         for ai in ai_k:
             immu[ai] += 1 / le
         _log.info(f"Average time: {sum(dts) / len(vectors)}")
-        return immu, sum(dts) / len(vectors), sum(ai_k) / len(vectors),
-
-        # for vector in vectors:
-        #     v = list(vector)
-        #     _log.info(f"Starting calculation of AIk for k={element.k} vector {size}")
-        #     t = time.time()
-        #     immunity = IVRestrictedAI.algebraic_immunity_dist(s_image=v,
-        #                                                       s=element.domain[::-1], n_vars=n, _hide=True)
-        #     dt = time.time() - t
-        #     # imm_2 = FRMRestrictedAI().algebraic_immunity_dist(s_image=v, s=element.domain[::-1], n_vars=n)
-        #     # assert imm_2 == immunity
-        #     tim.append(dt)
-        #     ai_k += immunity
-        #     # immunity = calculate_ai(f=list(vector), s=element.domain[::-1], obj=EfficientAIRestrictedSet,
-        #     #                       method='algebraic_immunity_dist')
-        #     _log.info(f"Immunity calculated: {immunity}")
-        #     immu[immunity] += 1
-        #     size += 1
-        #     _log.info(f"Calculated AIk on a vector on the slice of k = {element.k}")
-        # return element.k, {k: v / size for k, v in immu.items()}, sum(tim) / len(tim), ai_k / len(vectors)
+        return immu, sum(dts) / len(vectors), sum(ai_k) / len(vectors)
 
     @staticmethod
-    def compute_ai_per_slice(element, s, n):
+    def compute_ai_per_slice(element, s, n, algorithm):
+
         immu = {a: 0 for a in range(int(math.ceil(n) / 2) + 1)}
         size = 0
-        print("Sample size", s)
-        vectors = element.build_wpb_vectors(sample_size=s, parallel=True)
+        vectors = element.build_wpb_vectors(sample_size=s)
         tim = 0
         ai_k = 0
         for idx, vector in enumerate(vectors):
             v = list(vector)
             _log.info(f"Starting calculation of AIk for k={element.k} vector {size}")
-            t = time.time()
-            immunity = IVRestrictedAI.algebraic_immunity_dist(s_image=v,
-                                                              s=element.domain[::-1], n_vars=n, _hide=True)
-            dt = time.time() - t
+            if algorithm == Algorithm.IV:
+                t = time.time()
+                immunity = IVRestrictedAI.algebraic_immunity_dist(s_image=v,
+                                                                  s=element.domain[::-1], n_vars=n, _hide=True)
+                dt = time.time() - t
+            elif algorithm == Algorithm.FRM:
+                immu_obj = FRMRestrictedAI(n_max=n)
+                t = time.time()
+                immunity = immu_obj.algebraic_immunity_dist(s_image=v,
+                                                            s=element.domain[::-1], n_vars=n)
+                dt = time.time() - t
+            else:
+                raise Exception("Unknown algorithm")
             print(dt)
-            # imm_2 = FRMRestrictedAI().algebraic_immunity_dist(s_image=v, s=element.domain[::-1], n_vars=n)
-            # assert imm_2 == immunity
             tim += dt
             ai_k += immunity
             _log.info(f"Immunity calculated: {immunity}")
@@ -150,10 +171,10 @@ class AIkDistribution:
         return df_dict, pd.concat(dfs, ignore_index=True)
 
     @classmethod
-    def func_parallel(cls, m: int, s: int, n: int, k_range):
+    def func_parallel(cls, m: int, s: int, n: int, k_range, algorithm: Algorithm):
 
         family = WPBFamily(m=m)
-        partial_process_item = partial(cls.compute_ai_per_slice, s=s, n=n)
+        partial_process_item = partial(cls.compute_ai_per_slice, s=s, n=n, algorithm=algorithm)
 
         workers = multiprocessing.cpu_count() // 2
 
@@ -178,15 +199,15 @@ class AIkDistribution:
         return df_2, df_times, df_averages
 
     @classmethod
-    def func_parallel_seq(cls, m: int, s: int, n: int, k_range: List[int]):
+    def func_parallel_seq(cls, m: int, s: int, n: int, k_range: List[int], algorithm: Algorithm):
         family = WPBFamily(m=m)
-
         prob, times, average = {}, {}, {}
         slices = family.slices
         for k in k_range:
             item = slices[k]
             # for item in family.slices:
-            prob_by_k, times_by_k, average_by_k = cls.compute_ai_per_slice_parallel(element=item, s=s, n=n)
+            prob_by_k, times_by_k, average_by_k = cls.compute_ai_per_slice_parallel(element=item, s=s, n=n,
+                                                                                    algorithm=algorithm)
             prob[item.k] = prob_by_k
             times[item.k] = times_by_k
             average[item.k] = average_by_k
@@ -208,48 +229,10 @@ class AIkDistribution:
     @classmethod
     def plot_dist(cls, distribution_data: Tuple[pd.DataFrame, Dict[int, pd.DataFrame]], n: int, sample_size: int,
                   parallelization_type: str = "", save: bool = False):
-        # filename = tables_dir / f"table_m_{m}_sample_size_{sample_size}"
 
         main_vals = distribution_data[0]
         prob_vals = distribution_data[1]
-        # prob_vals = {
-        #     '0': pd.DataFrame({
-        #         "$AI_k(f)=d$": [0, 1, 2, 3, 4],
-        #         r'$p\left(AI_K(f) = d\right)$': [1, 0, 0, 0, 0]
-        #     }),
-        #     '1': pd.DataFrame({
-        #         "$AI_k(f)=d$": [0, 1, 2, 3, 4],
-        #         r'$p\left(AI_K(f) = d\right)$': [0, 1, 0, 0, 0]
-        #     }),
-        #     '2': pd.DataFrame({
-        #         "$AI_k(f)=d$": [0, 1, 2, 3, 4],
-        #         r'$p\left(AI_K(f) = d\right)$': [0, 0.046051, 0.953949, 0, 0]
-        #     }),
-        #     '3': pd.DataFrame({
-        #         "$AI_k(f)=d$": [0, 1, 2, 3, 4],
-        #         r'$p\left(AI_K(f) = d\right)$': [0, 0, 0.983856, 0.016144, 0]
-        #     }),
-        #     '4': pd.DataFrame({
-        #         "$AI_k(f)=d$": [0, 1, 2, 3, 4],
-        #         r'$p\left(AI_K(f) = d\right)$': [0, 0, 0.125275, 0.874725, 0]
-        #     }),
-        #     '5': pd.DataFrame({
-        #         "$AI_k(f)=d$": [0, 1, 2, 3, 4],
-        #         r'$p\left(AI_K(f) = d\right)$': [0, 0, 0.983673, 0.016327, 0]
-        #     }),
-        #     '6': pd.DataFrame({
-        #         "$AI_k(f)=d$": [0, 1, 2, 3, 4],
-        #         r'$p\left(AI_K(f) = d\right)$': [0, 0.048401, 0.951599, 0, 0]
-        #     }),
-        #     '7': pd.DataFrame({
-        #         "$AI_k(f)=d$": [0, 1, 2, 3, 4],
-        #         r'$p\left(AI_K(f) = d\right)$': [0, 1, 0, 0, 0]
-        #     }),
-        #     '8': pd.DataFrame({
-        #         "$AI_k(f)=d$": [0, 1, 2, 3, 4],
-        #         r'$p\left(AI_K(f) = d\right)$': [1, 0, 0, 0, 0]
-        #     }),
-        # }
+
         m = math.log(n, 2)
 
         cls.plot_aik_average(average_dataframe=main_vals, sample_size=sample_size, n=n, m=int(m),
@@ -300,8 +283,7 @@ class AIkDistribution:
         plt.close(fig)
 
     @classmethod
-    def func_parallel_non_parallel(cls, m: int, s: int, n: int, k_range: List[int]):
-        immu_obj = FRMRestrictedAI(n_max=n)
+    def func_parallel_non_parallel(cls, m: int, s: int, n: int, k_range: List[int], algorithm: Algorithm):
         ais = {k: 0 for k in k_range}
         probs = {k: 0 for k in k_range}
         family = WPBFamily(m=m)
@@ -314,7 +296,7 @@ class AIkDistribution:
             if binomial(len(element.domain), helf) <= s:
                 vectors = element.generate_wapb_vectors()
             else:
-                vectors = element.build_wpb_vectors(sample_size=s, parallel=True)
+                vectors = element.build_wpb_vectors(sample_size=s)
             _log.info(f"{len(vectors)} build")
             prob = {a: 0 for a in range(int(math.ceil(n) / 2) + 1)}
             vals = 0
@@ -323,17 +305,17 @@ class AIkDistribution:
             for idx, v in enumerate(vectors):
                 if idx % 1000 == 0:
                     _log.info(f"iteration: {idx}")
-                # padded_v = [0 for _ in range(2 ** n)]
-                # for idx, val in zip(element.domain, v):
-                #     padded_v[idx] = val
-                # # print(bf.truth_table(format='int'))
-                # print(padded_v)
-                # f = BooleanFunction(padded_v)
-                t = time.time()
-                immunity = immu_obj.algebraic_immunity_dist(s_image=v, s=element.domain[::-1], n_vars=n )
-                #immunity = IVRestrictedAI.algebraic_immunity(truth_table=tuple(padded_v),
-                #                                              s=element.domain[::-1], _hide=True)
-                dt = time.time() - t
+                if algorithm == Algorithm.FRM:
+                    immu_obj = FRMRestrictedAI(n_max=n)
+                    t = time.time()
+                    immunity = immu_obj.algebraic_immunity_dist(s_image=v, s=element.domain[::-1], n_vars=n)
+                    dt = time.time() - t
+                elif algorithm == Algorithm.IV:
+                    t = time.time()
+                    immunity = IVRestrictedAI.algebraic_immunity_dist(s_image=v, s=element.domain[::-1], n_vars=n)
+                    dt = time.time() - t
+                else:
+                    raise Exception("Unknown algorithm")
                 _log.debug(f"execution time: {dt}")
                 ti += dt
                 vals += immunity
@@ -363,11 +345,6 @@ def save_raw_data_to_file(filename: Path, data: str):
         file.write(data)
 
 
-class Algorithm(enum.Enum):
-    FRM: 1
-    IV: 3
-
-
 def main(n: int, k_max: int, k_min: int, parallelize_by: ParallelizationType, sample_size: int, plot: bool,
          algorithm: Algorithm):
     slice_k = list(range(n + 1))
@@ -376,18 +353,20 @@ def main(n: int, k_max: int, k_min: int, parallelize_by: ParallelizationType, sa
             slice_k = list(range(k_min, k_max + 1))
         else:
             slice_k = [k_min]
-
-    print(slice_k)
+    _log.info(f"List of k: {slice_k}")
     m_log = int(math.log(n, 2))
     if parallelize_by == ParallelizationType.SLICES:
         dist_df, times_df, df_averages = AIkDistribution.func_parallel(m=m_log, n=n, s=sample_size,
-                                                                       k_range=slice_k)
+                                                                       k_range=slice_k,
+                                                                       algorithm=algorithm)
     elif parallelize_by == ParallelizationType.SAMPLES:
         dist_df, times_df, df_averages = AIkDistribution.func_parallel_seq(m=m_log, n=n, s=sample_size,
-                                                                           k_range=slice_k)
+                                                                           k_range=slice_k,
+                                                                           algorithm=algorithm)
     else:
         dist_df, times_df, df_averages = AIkDistribution.func_parallel_non_parallel(m=m_log, n=n,
-                                                                                    s=sample_size, k_range=slice_k)
+                                                                                    s=sample_size, k_range=slice_k,
+                                                                                    algorithm=algorithm)
         # dist_df, times_df, df_averages = AIkDistribution.func_parallel_seq(m=m_log, n=args.n_vars, s=args.sample_size)
     times_latex = times_df.to_latex(index=False, escape=False)
     dire = Path(
@@ -403,8 +382,7 @@ def main(n: int, k_max: int, k_min: int, parallelize_by: ParallelizationType, sa
         AIkDistribution.plot_dist(distribution_data=(df_averages, dist_df[0]), sample_size=sample_size,
                                   n=n,
                                   save=True, parallelization_type=parallelize_by.value)
-    # AIkDistribution.plot_dist(distribution_data=(None, None), sample_size=args.sample_size, n=args.n_vars,
-    #                           save=True)
+
     file_path = dire / f"distribution_n_{n}_sample_{sample_size}_{parallelize_by.value}_{k_min}_{k_max}.txt"
     save_raw_data_to_file(filename=file_path, data=dist_latex)
 
@@ -422,55 +400,14 @@ if __name__ == '__main__':
     parser.add_argument('-n', '--n_vars', help='number of variables', type=int, default=8)
     parser.add_argument('-O', '--sample_size', help='sample_size', type=int, default=10)
     parser.add_argument('-p', '--parallelize_by', type=lambda p: ParallelizationType(p),
-                        default=ParallelizationType.SLICES.value)
-    parser.add_argument('-kM', '--k_max', type=int, default=None)
-    parser.add_argument('-km', '--k_min', type=int, default=0)
+                        default=ParallelizationType.SAMPLES.value,
+                        help="Type of parallelization: Slices: slices, Samples: a or Sequencial: sequencial.")
+    parser.add_argument('-kM', '--k_max', type=int, default=None, help="Maximum k - default None.")
+    parser.add_argument('-km', '--k_min', type=int, default=0, help="Minimum k - default 0.")
     parser.add_argument('-pl', '--plot', action='store_true', help="Plot results")
+    parser.add_argument('-alg', '--algorithm', type=lambda a: Algorithm(a),
+                        default=Algorithm.FRM.value, help='Algorithm to use: Alg 1 or Alg 3.')
     args = parser.parse_args()
-
+    _log.info(f"Arguments given: {args}")
     main(n=args.n_vars, k_max=args.k_max, k_min=args.k_min, sample_size=args.sample_size,
-         parallelize_by=args.parallelize_by, plot=args.plot)
-
-    # slice_k = list(range(args.n_vars + 1))
-    #
-    # if args.k_max is not None:
-    #     if args.k_max != args.k_min:
-    #         slice_k = list(range(args.k_min, args.k_max + 1))
-    #     else:
-    #         slice_k = [args.k_min]
-    # print(slice_k)
-    # m_log = int(math.log(args.n_vars, 2))
-    # if args.parallelize_by == 'slice':
-    #     dist_df, times_df, df_averages = AIkDistribution.func_parallel(m=m_log, n=args.n_vars, s=args.sample_size,
-    #                                                                    k_range=slice_k)
-    # elif args.parallelize_by == 'a':
-    #     dist_df, times_df, df_averages = AIkDistribution.func_parallel_seq(m=m_log, n=args.n_vars, s=args.sample_size,
-    #                                                                        k_range=slice_k)
-    # else:
-    #     dist_df, times_df, df_averages = AIkDistribution.func_parallel_non_parallel(m=m_log, n=args.n_vars,
-    #                                                                                 s=args.sample_size, k_range=slice_k)
-    #     # dist_df, times_df, df_averages = AIkDistribution.func_parallel_seq(m=m_log, n=args.n_vars, s=args.sample_size)
-    # times_latex = times_df.to_latex(index=False, escape=False)
-    #
-    # file_path = Path(
-    #     os.path.join(SCRIPT_DIR,
-    #                  f"results/IV/AIk_distributions/times_n_{args.n_vars}_sample_{args.sample_size}_{args.parallelize_by}_{args.k_min}_{args.k_max}.txt"))
-    # save_raw_data_to_file(filename=file_path, data=times_latex)
-    # print(dist_df)
-    # dist_latex = dist_df[1].to_latex(index=False, escape=False)
-    # if args.plot is True:
-    #     AIkDistribution.plot_dist(distribution_data=(df_averages, dist_df[0]), sample_size=args.sample_size,
-    #                               n=args.n_vars,
-    #                               parallelization_type=args.parallelize_by)
-    # # AIkDistribution.plot_dist(distribution_data=(None, None), sample_size=args.sample_size, n=args.n_vars,
-    # #                          save=True)
-    # file_path = Path(
-    #     os.path.join(SCRIPT_DIR,
-    #                  f"results/IV/AIk_distributions/distribution_n_{args.n_vars}_sample_{args.sample_size}_{args.parallelize_by}_{args.k_min}_{args.k_max}.txt"))
-    # save_raw_data_to_file(filename=file_path, data=dist_latex)
-    #
-    # file_path = Path(
-    #     os.path.join(SCRIPT_DIR,
-    #                  f"results/IV/AIk_distributions/distribution_n_{args.n_vars}_sample_{args.sample_size}_{args.parallelize_by}_{args.k_min}_{args.k_max}_averages.txt"))
-    # averages_latex = df_averages.to_latex(index=False, escape=False)
-    # save_raw_data_to_file(filename=file_path, data=averages_latex)
+         parallelize_by=args.parallelize_by, plot=args.plot, algorithm=args.algorithm)

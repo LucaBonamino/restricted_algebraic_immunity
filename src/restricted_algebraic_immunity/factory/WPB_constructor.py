@@ -80,8 +80,8 @@ class BalancedSlice:
         for _ in range(sample_size):
             yield BalancedSlice.generate_random_vector(len(self.domain), half_n)
 
-    def build_wpb_vectors(self, sample_size=None, parallel: bool = False):
-        print(f"build_vectors called with self.k={self.k} and self.max_column={self.max_column}")
+    def build_wpb_vectors(self, sample_size=None):
+        log.debug(f"build_vectors called with self.k={self.k} and self.max_column={self.max_column}")
         if self.k == 0:
             log.debug("Condition met: self.k == 0 or self.k == self.max_column - 1")
             # vect = zero_vector(GF(2), self.max_column)
