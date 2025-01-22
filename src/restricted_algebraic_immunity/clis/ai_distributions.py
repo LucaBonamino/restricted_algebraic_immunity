@@ -4,8 +4,8 @@ from pathlib import Path
 import typer
 import math
 
-from restricted_algebraic_immunity.factory.AIk_distribution import AIkDistribution, save_raw_data_to_file, DFKeys, \
-    ParallelizationType, main
+from restricted_algebraic_immunity.factory.AIk_distribution import AIkDistribution, DFKeys, \
+    ParallelizationType, main, Algorithm
 from restricted_algebraic_immunity.factory.plotter_utils import from_latex_to_dataframe, \
     from_dataframe_to_dict_of_dataframes
 from restricted_algebraic_immunity.utils.logging import get_logger
@@ -17,6 +17,8 @@ app = typer.Typer(pretty_exceptions_show_locals=False, no_args_is_help=True)
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 
 
+
+
 @app.command('AIk-distribution')
 def calculate_distribution(
         n: int = typer.Option(16, help="Number of variables."),
@@ -25,9 +27,10 @@ def calculate_distribution(
         k_max: int = typer.Option(None, help='Maximum value of k.'),
         parallelize_by: ParallelizationType = typer.Option(ParallelizationType.SLICES.value,
                                                            help='Type of parallelization.'),
+        algorithm: Algorithm = typer.Option(help="algorithm to use."),
         plot: bool = typer.Option(False, help='Produce and save plot.')
 ):
-    main(n=n, k_max=k_max, k_min=k_min, sample_size=sample_size, parallelize_by=parallelize_by, plot=plot)
+    main(n=n, k_max=k_max, k_min=k_min, sample_size=sample_size, parallelize_by=parallelize_by, plot=plot, algorithm=algorithm)
 
 
 @app.command('plot-distribution')

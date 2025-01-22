@@ -3,7 +3,6 @@ import enum
 import math
 import multiprocessing
 import os
-import sys
 import time
 from concurrent.futures import ProcessPoolExecutor
 from functools import partial
@@ -13,11 +12,10 @@ from typing import List, Tuple, Dict
 import matplotlib.pyplot as plt
 import pandas as pd
 from matplotlib.ticker import MaxNLocator
-
 from sage.all import *
 
-from restricted_algebraic_immunity.boolean_functions.known_boolean_functions.DM24 import SubDM24, DM24
 from restricted_algebraic_immunity.factory.WPB_constructor import WPBFamily
+from restricted_algebraic_immunity.full_reed_muller.FRM import FRMRestrictedAI
 from restricted_algebraic_immunity.inductive_reed_muller.IV import IVRestrictedAI
 from restricted_algebraic_immunity.utils.logging import get_logger
 
@@ -45,15 +43,15 @@ class AIkDistribution:
     @staticmethod
     def run_immunity(sub_tt, slice_domain, n_vars):
         assert len([item for item in sub_tt if item == 1]) == len(sub_tt) / 2
-        padded_v = [0 for _ in range(2**n_vars)]
+        padded_v = [0 for _ in range(2 ** n_vars)]
         for idx, val in zip(slice_domain, sub_tt):
             padded_v[idx] = val
-        #print(bf.truth_table(format='int'))
+        # print(bf.truth_table(format='int'))
         print(padded_v)
-        assert len(padded_v) == 2**n_vars
+        assert len(padded_v) == 2 ** n_vars
         t = time.time()
         aik = IVRestrictedAI.algebraic_immunity(truth_table=tuple(padded_v),
-                                               s=slice_domain, _hide=True)
+                                                s=slice_domain, _hide=True)
         # aik = IVRestrictedAI.algebraic_immunity(truth_table=padded_v,
         #                                              s=slice_domain, _hide=True)
         # aik = IVRestrictedAI.algebraic_immunity_dist(s_image=sub_tt,
@@ -303,6 +301,7 @@ class AIkDistribution:
 
     @classmethod
     def func_parallel_non_parallel(cls, m: int, s: int, n: int, k_range: List[int]):
+        immu_obj = FRMRestrictedAI(n_max=n)
         ais = {k: 0 for k in k_range}
         probs = {k: 0 for k in k_range}
         family = WPBFamily(m=m)
@@ -324,14 +323,16 @@ class AIkDistribution:
             for idx, v in enumerate(vectors):
                 if idx % 1000 == 0:
                     _log.info(f"iteration: {idx}")
-                padded_v = [0 for _ in range(2 ** n)]
-                for idx, val in zip(element.domain, v):
-                    padded_v[idx] = val
-                # print(bf.truth_table(format='int'))
-                print(padded_v)
+                # padded_v = [0 for _ in range(2 ** n)]
+                # for idx, val in zip(element.domain, v):
+                #     padded_v[idx] = val
+                # # print(bf.truth_table(format='int'))
+                # print(padded_v)
+                # f = BooleanFunction(padded_v)
                 t = time.time()
-                immunity = IVRestrictedAI.algebraic_immunity(truth_table=tuple(padded_v),
-                                                                  s=element.domain[::-1], _hide=True)
+                immunity = immu_obj.algebraic_immunity_dist(s_image=v, s=element.domain[::-1], n_vars=n )
+                #immunity = IVRestrictedAI.algebraic_immunity(truth_table=tuple(padded_v),
+                #                                              s=element.domain[::-1], _hide=True)
                 dt = time.time() - t
                 _log.debug(f"execution time: {dt}")
                 ti += dt
@@ -362,7 +363,13 @@ def save_raw_data_to_file(filename: Path, data: str):
         file.write(data)
 
 
-def main(n: int, k_max: int, k_min: int, parallelize_by: ParallelizationType, sample_size: int, plot: bool):
+class Algorithm(enum.Enum):
+    FRM: 1
+    IV: 3
+
+
+def main(n: int, k_max: int, k_min: int, parallelize_by: ParallelizationType, sample_size: int, plot: bool,
+         algorithm: Algorithm):
     slice_k = list(range(n + 1))
     if k_max is not None:
         if k_max != k_min:

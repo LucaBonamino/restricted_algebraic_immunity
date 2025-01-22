@@ -1,10 +1,12 @@
 import argparse
 import os
 
+from sage.all import *
+
+from restricted_algebraic_immunity.factory.time_comparison import TimeMeasurement
 from restricted_algebraic_immunity.full_reed_muller.FRM import FRMRestrictedAI
 from restricted_algebraic_immunity.full_reed_muller.pre_compute import pre_compute_all
 from restricted_algebraic_immunity.utils.logging import get_logger
-from restricted_algebraic_immunity.factory.time_comparison import TimeMeasurement
 
 _log = get_logger(__name__)
 
