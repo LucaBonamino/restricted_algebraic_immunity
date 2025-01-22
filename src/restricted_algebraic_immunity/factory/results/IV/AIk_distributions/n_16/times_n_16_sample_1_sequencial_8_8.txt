@@ -1,7 +1,0 @@
-\begin{tabular}{rr}
-\toprule
- $k$ &  $\mathbb{E}[T(AI_k)]$ \\
-\midrule
-   8 &           48864.566655 \\
-\bottomrule
-\end{tabular}
