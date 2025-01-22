@@ -1,8 +1,6 @@
-import enum
 from multiprocessing import Pool
 from typing import List, Tuple
 
-from numpy.lib.function_base import iterable
 from sage.all import *
 from sage.crypto.boolean_function import BooleanFunction
 from sage.rings.integer import Integer
@@ -13,9 +11,15 @@ from restricted_algebraic_immunity.entities.enums import FileName
 
 class FRMRestrictedAI:
 
-    def __init__(self):
-        rm = load(f"{settings.root_path}/full_reed_muller/pre_computation/{FileName.REED_MILLER.value}.sobj")
-        degrees = load(f"{settings.root_path}/full_reed_muller/pre_computation/{FileName.DEGREES.value}.sobj")
+    def __init__(self, n_max: int = None):
+        if n_max is not None:
+            rm = load(
+                f"{settings.root_path}/full_reed_muller/pre_computation/{FileName.REED_MILLER.value}_{n_max}.sobj")
+            degrees = load(
+                f"{settings.root_path}/full_reed_muller/pre_computation/{FileName.DEGREES.value}_{n_max}.sobj")
+        else:
+            rm = load(f"{settings.root_path}/full_reed_muller/pre_computation/{FileName.REED_MILLER.value}.sobj")
+            degrees = load(f"{settings.root_path}/full_reed_muller/pre_computation/{FileName.DEGREES.value}.sobj")
         self.degrees = degrees
         self.reed_millers = rm
 
@@ -82,6 +86,7 @@ class FRMRestrictedAI:
         if len(set(s_image)) == 1:
             return int(0)
         degrees = self.degrees[n_vars]
-        reed_miller_f_generator, reed_miller_g_generator = FRMRestrictedAI.get_gen_matrices_dist(f_z=s_image, m=mat, s=s)
+        reed_miller_f_generator, reed_miller_g_generator = FRMRestrictedAI.get_gen_matrices_dist(f_z=s_image, m=mat,
+                                                                                                 s=s)
         args_to_processes = [(s, reed_miller_f_generator, mat, degrees), (s, reed_miller_g_generator, mat, degrees)]
         return FRMRestrictedAI.run_processes(args_to_processes)

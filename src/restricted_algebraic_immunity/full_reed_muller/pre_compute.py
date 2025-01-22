@@ -52,3 +52,10 @@ def save_deg_to_file(d: Dict):
 
 def save_to_matrices_file(d: Dict[int, List]):
     save(d, f'{settings.root_path}/full_reed_muller/pre_computation/RMs.sobj')
+
+
+def pre_compute_by_n_vars(n: int):
+    mat = compute_generator_matrix(n=n, r=n)
+    deg = {j: sum([binomial(n, k) for k in range(j + 1)]) for j in range(n + 1)}
+    save({n: mat}, f'{settings.root_path}/full_reed_muller/pre_computation/RMs_{n}.sobj')
+    save({n: deg}, f'{settings.root_path}/full_reed_muller/pre_computation/degs_{n}.sobj')
