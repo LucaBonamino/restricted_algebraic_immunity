@@ -1,7 +1,7 @@
 setuptools
 pip-autoremove
 
-algebraic_immunity_utils==0.2.1
+algebraic_immunity_utils
 pydantic<2
 typer>=0.15.1,<2
 
