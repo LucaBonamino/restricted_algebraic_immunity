@@ -9,10 +9,9 @@ from typing import List, Tuple, Dict
 
 import matplotlib.pyplot as plt
 import pandas as pd
-from cvxopt.lapack import pttrf
 from matplotlib.ticker import MaxNLocator
 from sage.all import *
-from sympy.logic.boolalg import BooleanFunction
+from sage.crypto.boolean_function import BooleanFunction
 
 from restricted_algebraic_immunity.factory.WPB_constructor import WPBFamily, BalancedSlice
 from restricted_algebraic_immunity.full_reed_muller.FRM import FRMRestrictedAI
