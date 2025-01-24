@@ -1,7 +1,9 @@
 import itertools
+import math
 import sys
 import time
 
+from restricted_algebraic_immunity.full_reed_muller.FMR_no_sage import FRMRestrictedAINoSage
 from restricted_algebraic_immunity.inductive_reed_muller.IV import IVRestrictedAI
 from restricted_algebraic_immunity.utils.logging import get_logger, set_level
 from restricted_algebraic_immunity.utils.utils import partition
@@ -34,8 +36,11 @@ class Slice:
 
     @set_level(logger=_log)
     def immunity_f_k(self, f, _verbose: bool = False, _hide: bool = False):
+        n = int(math.log(len(f.truth_table()),2))
+        imm_obj = FRMRestrictedAINoSage(n)
         ti = time.time()
-        immunity = IVRestrictedAI.algebraic_immunity(truth_table=f.truth_table(), s=self.domain, _hide=True)
+        # immunity = IVRestrictedAI.algebraic_immunity(truth_table=f.truth_table(), s=self.domain, _hide=True)
+        immunity = imm_obj.algebraic_immunity(f=f, s=self.domain)
         dt = time.time() - ti
         _log.info(f"[AIK-f] Immunity from f for k = {self.k}: {immunity}")
         return immunity, dt

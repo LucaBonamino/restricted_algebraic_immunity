@@ -4,3 +4,5 @@ src/restricted_algebraic_immunity.egg-info
 **__pycache__**
 largeMatrices
 notebooks/.ipynb_checkpoints
+
+src/restricted_algebraic_immunity/full_reed_muller/pre_computation/largeMatrices

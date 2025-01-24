@@ -8,6 +8,8 @@ from sage.rings.integer import Integer
 from sage.crypto.boolean_function import BooleanFunction
 import random
 
+from restricted_algebraic_immunity.factory.FMR_time_measurement import FMRTimeMeasurement
+from restricted_algebraic_immunity.full_reed_muller.FMR_no_sage import FRMRestrictedAINoSage
 from restricted_algebraic_immunity.full_reed_muller.FRM import FRMRestrictedAI
 from restricted_algebraic_immunity.inductive_reed_muller.IV import IVRestrictedAI
 
@@ -36,6 +38,30 @@ def partition(n):
 
 
 class TestRestrictedEfficientImmunityExtensive(unittest.TestCase):
+
+
+    def test_no_sage_ai(self):
+
+
+        max_n = 8
+        immunity_obj = FRMRestrictedAI()
+        imm_no_sage = FRMRestrictedAINoSage(n_max=max_n)
+        for _ in range(100):
+            n_var = random.choice(range(1, max_n))
+            n_var = max_n
+            p = partition(n=Integer(n_var))
+            v = [Integer(random.randint(0, 1)) for _ in range(2 ** Integer(n_var))]
+            f = BooleanFunction(v)
+            for k in p:
+                ai_k_n = immunity_obj.algebraic_immunity(f=f, s=p[k])
+                r = imm_no_sage.algebraic_immunity(f, p[k])
+                if ai_k_n != r:
+                    print(ai_k_n, r)
+                    print(f.truth_table())
+                    print(p[k])
+                    print(k)
+                self.assertEqual(ai_k_n, r)
+
 
     def test_restricted_with_pre_computation(self):
         v = [Integer(0), Integer(1), Integer(0), Integer(0)]
