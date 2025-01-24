@@ -413,6 +413,7 @@ def row_echelon_full_matrix(m):
         for j in range(i + 1, m.nrows()):
             if m[j, i] == 1:
                 m[j] = (m[j] + m[i]) % 2
+                m[j] = (m[j] + m[i]) % 2
                 operations.append((j, i))
 
     return m, operations

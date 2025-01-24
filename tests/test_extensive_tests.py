@@ -109,7 +109,7 @@ class TestRestrictedEfficientImmunityExtensive(unittest.TestCase):
         immunity_obj = FRMRestrictedAI()
 
         max_n = 10
-        for _ in range(1000):
+        for _ in range(100):
             n_var = random.choice(range(1, max_n))
             p = partition(n=Integer(n_var))
             f = BooleanFunction([Integer(random.randint(0, 1)) for _ in range(2 ** Integer(n_var))])

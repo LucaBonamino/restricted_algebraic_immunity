@@ -7,6 +7,7 @@ from typing import List, Tuple, Union
 
 import numpy as np
 from algebraic_immunity_utils.algebraic_immunity_utils import Matrix as GF2Matrix
+from numpy.ma.extras import vander
 from sage.all import *
 
 
@@ -274,19 +275,23 @@ class IVRestrictedAI:
             idx += 1
         vander_monde_s = IVRestrictedAI.compute_v(z=s[:idx + 1], e=e[:idx + 1])
         vander_monde_s = IVRestrictedAI.fill_matrix_will_all_s(vander_monde_s.copy(), s[idx + 1:], e[:idx + 1])
-        vander_monde_s = Matrix(GF(2), vander_monde_s.to_list())
-        # vander_monde_s, operations_s = vander_monde_s.row_echelon_full_matrix()
+        # vander_monde_s = Matrix(GF(2), vander_monde_s.to_list())
+        vander_monde_s, operations_s = vander_monde_s.row_echelon_full_matrix()
         vandermonde = IVRestrictedAI.fill_matrix_will_all_s(states[0].vandermonde.copy(),
                                                                            states[0].z[idx + 1:],
                                                                            e[:idx + 1])
-        vandermonde, ops = generalized_echelon_form_GF2(vandermonde.to_list())
-        states[0].vandermonde = GF2Matrix(vandermonde)
+        # vandermonde, ops = generalized_echelon_form_GF2(vandermonde.to_list())
+        vandermonde, ops = vandermonde.row_echelon_full_matrix()
+        # states[0].vandermonde = GF2Matrix(vandermonde)
+        states[0].vandermonde = vandermonde
         states[0].operations += ops
         vandermonde = IVRestrictedAI.fill_matrix_will_all_s(states[1].vandermonde.copy(),
                                                                            states[1].z[idx + 1:],
                                                                            e[:idx + 1])
-        vandermonde, ops = generalized_echelon_form_GF2(vandermonde.to_list())
-        states[1].vandermonde = GF2Matrix(vandermonde)
+        # vandermonde, ops = generalized_echelon_form_GF2(vandermonde.to_list())
+        vandermonde, ops = vandermonde.row_echelon_full_matrix()
+        # states[1].vandermonde = GF2Matrix(vandermonde)
+        states[1].vandermonde = vandermonde
         states[1].operations += ops
         r_s = vander_monde_s.rank()
 
@@ -302,14 +307,19 @@ class IVRestrictedAI:
             for state in states:
                 vander_monde = IVRestrictedAI.append_column_operations(state.vandermonde.copy(), state.z, e[i],
                                                                        state.operations)
-                vander_monde_s = IVRestrictedAI.append_column_operations2(vander_monde_s, s, e[i])
+                vander_monde, ops = vander_monde.row_echelon_full_matrix()
+                # vander_monde_s = IVRestrictedAI.append_column_operations2(vander_monde_s, s, e[i])
+                vander_monde_s = IVRestrictedAI.append_column_operations(vander_monde_s.copy(), s, e[i], operations_s)
+                vander_monde_s, ops_s = vander_monde_s.row_echelon_full_matrix()
                 r_s = vander_monde_s.rank()
-                vander2 = Matrix(GF(2), vander_monde.to_list()).rank()
-                if vander2 != vander_monde.rank():
-                    a = 1
-                if vander2 < r_s:
+                # vander2 = Matrix(GF(2), vander_monde.to_list()).rank()
+                # if vander2 != vander_monde.rank():
+                 #    a = 1
+                if vander_monde.rank() < r_s:
                     return e[i].count('1')
                 state.vandermonde = vander_monde
+                state.operations += ops
+                operations_s += ops_s
             i += 1
 
     def find_min_annihilator(self, z: List[str], z_c: List[str], e: List[str], s: List[str]) -> Union[int, None]:
