@@ -2,3 +2,4 @@
 .python-version
 src/restricted_algebraic_immunity.egg-info
 **__pycache__**
+largeMatrices
