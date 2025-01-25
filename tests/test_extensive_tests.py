@@ -161,17 +161,17 @@ class TestRestrictedEfficientImmunityExtensive(unittest.TestCase):
         s = [63, 95, 111, 119, 123, 125, 126, 159, 175, 183, 187, 189, 190, 207, 215, 219, 221, 222, 231, 235, 237, 238, 243, 245, 246, 249, 250, 252]
 
         f = BooleanFunction([int(item) for item in tb])
-        r = IVRestrictedAI.algebraic_immunity(f, s, balance_ratio=1)
+        r = IVRestrictedAI.algebraic_immunity(f, s)
         immunity_obj = FRMRestrictedAI()
         ai_k_n = immunity_obj.algebraic_immunity(f=f, s=s)
         print(r)
         self.assertEqual(ai_k_n, r)
 
-    def test_failing_unbalanced_4(self):
+    def test_failing_balanced_4(self):
         tb = (True, False, True, False, False, True, False, True, True, False, False, False, False, False, True, False, False, False, True, False, False, True, True, True, False, True, True, False, False, True, True, False, True, False, True, False, True, False, True, False, True, True, True, False, True, True, False, False, False, True, False, False, False, True, False, True, False, False, False, False, False, True, True, False, True, True, True, False, True, True, False, True, True, True, False, False, False, True, True, True, True, True, False, True, False, True, False, False, True, False, True, True, False, False, False, False, False, True, True, False, False, False, True, True, False, False, True, True, True, False, False, True, True, False, False, False, True, False, True, True, False, False, True, False, False, False, False, False, False, True, True, True, True, True, False, True, True, True, False, True, False, False, False, False, False, True, True, False, False, False, True, True, True, False, True, False, False, True, True, False, False, False, True, True, False, True, True, True, False, True, True, True, True, False, False, True, True, True, True, True, False, True, False, False, False, False, True, False, False, True, False, False, False, True, True, True, False, True, True, True, False, True, False, False, False, True, True, True, True, True, True, False, True, False, True, False, False, False, False, True, True, True, True, True, True, False, True, True, False, False, True, False, True, False, False, False, False, False, False, True, True, False, True, False, True, False, True, False, False, True, False, False, True, True, True, False)
         s = [15, 23, 27, 29, 30, 39, 43, 45, 46, 51, 53, 54, 57, 58, 60, 71, 75, 77, 78, 83, 85, 86, 89, 90, 92, 99, 101, 102, 105, 106, 108, 113, 114, 116, 120, 135, 139, 141, 142, 147, 149, 150, 153, 154, 156, 163, 165, 166, 169, 170, 172, 177, 178, 180, 184, 195, 197, 198, 201, 202, 204, 209, 210, 212, 216, 225, 226, 228, 232, 240]
         f = BooleanFunction([int(item) for item in tb])
-        r = IVRestrictedAI.algebraic_immunity(f, s, balance_ratio=1)
+        r = IVRestrictedAI.algebraic_immunity(f, s, balance_ratio=0.888888)
         immunity_obj = FRMRestrictedAI()
         ai_k_n = immunity_obj.algebraic_immunity(f=f, s=s)
         print(r)

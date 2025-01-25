@@ -246,6 +246,7 @@ class IVRestrictedAI:
                                                            operations=state.operations)
 
                 vandermonde, operations_i = vander_monde.row_echelon_full_matrix()
+                # vandermonde, operations_i = vander_monde.reduced_echelon_form_last_row()
                 #  assert is_echelon_form(vandermonde.to_list())
                 # vandermonde, operations_i = echf_1(Matrix(GF(2), vander_monde.to_list()))
                 # l_m = [[vandermonde[i][j] for j in range(vandermonde.ncols())] for i in range(vandermonde.nrows())]
@@ -266,9 +267,9 @@ class IVRestrictedAI:
                             vanish_on_s, _ = IVRestrictedAI.verify(z=state.z_c, g=kv, mapping=state.e[:i + 1])
                             if vanish_on_s is False:
                                 return state.e[i].count('1')
-                        # else:
-                        #      new_index = i + vanish_index[0] + 1
-                        #      state.z[i + 1], state.z[new_index] = state.z[new_index], state.z[i + 1]
+                        else:
+                             new_index = i + vanish_index[0] + 1
+                             state.z[i + 1], state.z[new_index] = state.z[new_index], state.z[i + 1]
 
                 state.operations += operations_i
             i += 1
@@ -433,13 +434,13 @@ class IVRestrictedAI:
                 (z, z_c, e, s_bin),
                 (z_c, z, e, s_bin)
             ]
-            # imm1 = f_ummu.find_min_annihilator(z, z_c, e, s_bin)
+            imm1 = f_ummu.find_min_annihilator(z, z_c, e, s_bin)
 
-            # imm2 = f_ummu.find_min_annihilator(z_c, z, e, s_bin)
+            imm2 = f_ummu.find_min_annihilator(z_c, z, e, s_bin)
 
-            # results = [imm1, imm2]
-            with Pool(processes=2) as pool:
-                results = pool.starmap(f_ummu.find_min_annihilator, args)
+            results = [imm1, imm2]
+            # with Pool(processes=2) as pool:
+            #     results = pool.starmap(f_ummu.find_min_annihilator, args)
             return min([item for item in results if item is not None])
         else:
             return f_ummu.fin_min_annihilator_sequencial(z=z, z_c=z_c, e=e, s=s_bin)
