@@ -245,17 +245,17 @@ class IVRestrictedAI:
                                                            monom_slice=state.e[:i + 1], idx=i,
                                                            operations=state.operations)
 
-                vandermonde, operations_i = vander_monde.echelon_form_last_row()
+                vandermonde, operations_i = vander_monde.row_echelon_full_matrix()
                 #  assert is_echelon_form(vandermonde.to_list())
                 # vandermonde, operations_i = echf_1(Matrix(GF(2), vander_monde.to_list()))
                 # l_m = [[vandermonde[i][j] for j in range(vandermonde.ncols())] for i in range(vandermonde.nrows())]
                 state.vandermonde = vandermonde
                 if vandermonde.rank() < i + 1:
-                    m = Matrix(GF(2), vandermonde.to_list())
-                    k = m.right_kernel().basis()
-                    kl = [list(item) for item in k]
+                    # m = Matrix(GF(2), vandermonde.to_list())
+                    k = vandermonde.kernel()
+                    # kl = [list(item) for item in k]
                     # k = vandermonde.kernel()
-                    comb = IVRestrictedAI.linear_combinations(kl)
+                    comb = IVRestrictedAI.linear_combinations(k)
                     for kv in comb:
                         # if np.any(kv[cutoff_position:]) is True:
                         #     breakpoint()
@@ -333,7 +333,7 @@ class IVRestrictedAI:
             vander_monde_old = vander_monde
             vander_monde = IVRestrictedAI.compute_next(v_previous=vander_monde.copy(), support_slice=z[:i + 1],
                                                        monom_slice=e[:i + 1], idx=i, operations=operations)
-            vander_monde, operations_i = vander_monde.echelon_form_last_row()
+            vander_monde, operations_i = vander_monde.row_echelon_full_matrix()
             if vander_monde.rank() < i + 1:
                 k = vander_monde.kernel()[0]
                 vanish_on_z, vanish_index = IVRestrictedAI.verify(z=z[i + 1:], mapping=e[:i + 1], g=k)
@@ -433,13 +433,13 @@ class IVRestrictedAI:
                 (z, z_c, e, s_bin),
                 (z_c, z, e, s_bin)
             ]
-            imm1 = f_ummu.find_min_annihilator(z, z_c, e, s_bin)
+            # imm1 = f_ummu.find_min_annihilator(z, z_c, e, s_bin)
 
-            imm2 = f_ummu.find_min_annihilator(z_c, z, e, s_bin)
+            # imm2 = f_ummu.find_min_annihilator(z_c, z, e, s_bin)
 
-            results = [imm1, imm2]
-            # with Pool(processes=2) as pool:
-            #     results = pool.starmap(f_ummu.find_min_annihilator, args)
+            # results = [imm1, imm2]
+            with Pool(processes=2) as pool:
+                results = pool.starmap(f_ummu.find_min_annihilator, args)
             return min([item for item in results if item is not None])
         else:
             return f_ummu.fin_min_annihilator_sequencial(z=z, z_c=z_c, e=e, s=s_bin)
