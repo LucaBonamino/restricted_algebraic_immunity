@@ -429,18 +429,17 @@ class IVRestrictedAI:
         r = len(z) / len(z_c) if len(z) < len(z_c) else len(z_c) / len(z)
         # breakpoint()
         if r < balance_ratio:
-            # if True:
             args = [
                 (z, z_c, e, s_bin),
                 (z_c, z, e, s_bin)
             ]
-            imm1 = f_ummu.find_min_annihilator(z, z_c, e, s_bin)
+            # imm1 = f_ummu.find_min_annihilator(z, z_c, e, s_bin)
 
-            imm2 = f_ummu.find_min_annihilator(z_c, z, e, s_bin)
+            # imm2 = f_ummu.find_min_annihilator(z_c, z, e, s_bin)
 
-            results = [imm1, imm2]
-            # with Pool(processes=2) as pool:
-            #     results = pool.starmap(f_ummu.find_min_annihilator, args)
+            # results = [imm1, imm2]
+            with Pool(processes=2) as pool:
+                results = pool.starmap(f_ummu.find_min_annihilator, args)
             return min([item for item in results if item is not None])
         else:
             return f_ummu.fin_min_annihilator_sequencial(z=z, z_c=z_c, e=e, s=s_bin)
