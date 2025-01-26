@@ -1,5 +1,7 @@
+import time
 import unittest
 
+from pandas.core.groupby.base import transform_kernel_allowlist
 from sage.all import *
 from sage.rings.integer import Integer
 
@@ -50,15 +52,19 @@ class TestRestrictedEfficientImmunityExtensive(unittest.TestCase):
         immunity_obj = FRMRestrictedAI()
 
         max_n = 10
+        t_all = time.time()
 
-        for i in range(100):
+        for i in range(1000):
             n_var = random.choice(range(1, max_n))
             p = partition(n=Integer(n_var))
             v = [Integer(random.randint(0, 1)) for _ in range(2 ** Integer(n_var))]
             f = BooleanFunction(v)
             for k in p:
                 ai_k_n = immunity_obj.algebraic_immunity(f=f, s=p[k])
-                r = IVRestrictedAI.algebraic_immunity(v, p[k])
+                t = time.time()
+                r = IVRestrictedAI.algebraic_immunity(v, p[k], balance_ratio=1)
+                dt = time.time() - t
+                print(f"time particular: {dt} for n_var: {n_var} and {k}")
                 if ai_k_n != r:
                     print(ai_k_n, r)
                     print(f.truth_table())
@@ -67,6 +73,8 @@ class TestRestrictedEfficientImmunityExtensive(unittest.TestCase):
                 self.assertEqual(ai_k_n, r)
             print(i)
 
+        dt_all = time.time() - t_all
+        print("overall time: ", dt_all)
 
     def test_full_random_v_dist(self):
         immunity_obj = FRMRestrictedAI()

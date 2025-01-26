@@ -8,7 +8,7 @@ from typing import List, Tuple, Union
 import numpy as np
 from algebraic_immunity_utils.algebraic_immunity_utils import Matrix as GF2Matrix
 from numpy.ma.extras import vander
-from sage.all import *
+# from sage.all import *rom sage.all import *
 
 
 def get_pivot(row):
@@ -169,13 +169,13 @@ class IVRestrictedAI:
         m.append_column(v)
         return m
 
-    @classmethod
-    def append_column_operations2(cls, m: Matrix, z, e_i) -> GF2Matrix:
-        colu = vector(GF(2),[cls.str_exp(z_i, e_i) for z_i in z])
-        m = m.T.stack(colu).T
-        # m = m.augment(colu)
-        # m.append_column(col)
-        return m
+    # @classmethod
+    # def append_column_operations2(cls, m: Matrix, z, e_i) -> GF2Matrix:
+    #     colu = vector(GF(2),[cls.str_exp(z_i, e_i) for z_i in z])
+    #     m = m.T.stack(colu).T
+    #     # m = m.augment(colu)
+    #     # m.append_column(col)
+    #     return m
 
     @staticmethod
     def linear_combinations(base):
@@ -240,10 +240,16 @@ class IVRestrictedAI:
         idx = 0
         while i < n_iters:
             for state in states:
-                vander_monde = IVRestrictedAI.compute_next(v_previous=state.vandermonde.copy(),
-                                                           support_slice=state.z[:i + 1],
-                                                           monom_slice=state.e[:i + 1], idx=i,
-                                                           operations=state.operations)
+                vander_monde = state.vandermonde.compute_next(
+                    state.e[:i + 1],
+                    state.z[:i + 1],
+                    i,
+                    state.operations
+                )
+                # vander_monde = IVRestrictedAI.compute_next(v_previous=state.vandermonde.copy(),
+                #                                            support_slice=state.z[:i + 1],
+                #                                            monom_slice=state.e[:i + 1], idx=i,
+                #                                            operations=state.operations)
 
                 vandermonde, operations_i = vander_monde.row_echelon_full_matrix()
                 # vandermonde, operations_i = vander_monde.reduced_echelon_form_last_row()
@@ -306,11 +312,13 @@ class IVRestrictedAI:
         s_len = len(s)
         while r_s <= math.ceil(s_len / 2):
             for state in states:
-                vander_monde = IVRestrictedAI.append_column_operations(state.vandermonde.copy(), state.z, e[i],
-                                                                       state.operations)
+                # vander_monde = IVRestrictedAI.append_column_operations(state.vandermonde.copy(), state.z, e[i],
+                #                                                        state.operations)
+                vander_monde = state.vandermonde.construct_and_add_column(state.z, e[i], state.operations)
                 vander_monde, ops = vander_monde.row_echelon_full_matrix()
                 # vander_monde_s = IVRestrictedAI.append_column_operations2(vander_monde_s, s, e[i])
-                vander_monde_s = IVRestrictedAI.append_column_operations(vander_monde_s.copy(), s, e[i], operations_s)
+                # vander_monde_s = IVRestrictedAI.append_column_operations(vander_monde_s.copy(), s, e[i], operations_s)
+                vander_monde_s = vander_monde_s.construct_and_add_column(s, e[i], operations_s)
                 vander_monde_s, ops_s = vander_monde_s.row_echelon_full_matrix()
                 r_s = vander_monde_s.rank()
                 # vander2 = Matrix(GF(2), vander_monde.to_list()).rank()
@@ -332,8 +340,14 @@ class IVRestrictedAI:
 
         while i < n_iters:
             vander_monde_old = vander_monde
-            vander_monde = IVRestrictedAI.compute_next(v_previous=vander_monde.copy(), support_slice=z[:i + 1],
-                                                       monom_slice=e[:i + 1], idx=i, operations=operations)
+            vander_monde = vander_monde.compute_next(
+                e[:i + 1],
+                z[:i + 1],
+                i,
+                operations
+            )
+            # vander_monde = IVRestrictedAI.compute_next(v_previous=vander_monde.copy(), support_slice=z[:i + 1],
+            #                                            monom_slice=e[:i + 1], idx=i, operations=operations)
             vander_monde, operations_i = vander_monde.row_echelon_full_matrix()
             if vander_monde.rank() < i + 1:
                 k = vander_monde.kernel()[0]
@@ -368,12 +382,17 @@ class IVRestrictedAI:
         i = idx + 1
         s_len = len(s)
         while r_s <= math.ceil(s_len / 2):
-            vander_monde = IVRestrictedAI.append_column_operations(vander_monde, z, e[i], operations)
-            vander_monde_s = IVRestrictedAI.append_column_operations(vander_monde_s, s, e[i], operations_s)
+            # vander_monde = IVRestrictedAI.append_column_operations(vander_monde, z, e[i], operations)
+            vander_monde = vander_monde.construct_and_add_column(z, e[i], operations)
+
+            # vander_monde_s = IVRestrictedAI.append_column_operations(vander_monde_s, s, e[i], operations_s)
+            vander_monde_s = vander_monde_s.construct_and_add_column(s, e[i], operations_s)
+            vander_monde_2, ops_s = vander_monde_s.row_echelon_full_matrix()
             r_s = vander_monde_s.rank()
             if vander_monde.rank() < r_s:
                 return e[i].count('1')
             i += 1
+            operations_s += ops_s
 
     @staticmethod
     def generate_combinations(n, r):

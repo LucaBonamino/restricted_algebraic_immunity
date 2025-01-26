@@ -3,3 +3,4 @@
 src/restricted_algebraic_immunity.egg-info
 **__pycache__**
 largeMatrices
+notebooks/.ipynb_checkpoints
