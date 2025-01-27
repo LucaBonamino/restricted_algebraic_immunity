@@ -1,0 +1,7 @@
+\begin{tabular}{rr}
+\toprule
+ k &  average \\
+\midrule
+ 8 &      6.0 \\
+\bottomrule
+\end{tabular}
