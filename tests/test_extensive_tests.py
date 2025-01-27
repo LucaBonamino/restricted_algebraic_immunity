@@ -56,6 +56,7 @@ class TestRestrictedEfficientImmunityExtensive(unittest.TestCase):
 
         for i in range(1000):
             n_var = random.choice(range(1, max_n))
+            # n_var = 9
             p = partition(n=Integer(n_var))
             v = [Integer(random.randint(0, 1)) for _ in range(2 ** Integer(n_var))]
             f = BooleanFunction(v)
