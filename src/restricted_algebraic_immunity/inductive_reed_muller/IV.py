@@ -459,7 +459,7 @@ class IVRestrictedAI:
             return 0
         e = cls.compute_monomials(n=f_ummu.n, r=f_ummu.n)
         r = len(z) / len(z_c) if len(z) < len(z_c) else len(z_c) / len(z)
-        if r < balance_ratio:
+        if r >= balance_ratio:
             args = [
                 (z, z_c, e, s_bin),
                 (z_c, z, e, s_bin)
