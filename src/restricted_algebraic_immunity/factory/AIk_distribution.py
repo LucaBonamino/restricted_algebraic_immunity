@@ -389,10 +389,16 @@ def main(n: int, k_max: int, k_min: int, parallelize_by: ParallelizationType, sa
                                   n=n,
                                   save=True, parallelization_type=parallelize_by.value)
 
-    file_path = dire / f"distribution_n_{n}_sample_{sample_size}_{parallelize_by.value}_{k_min}_{k_max}.txt"
+    if k_min == 0 and k_max is None:
+        file_name_prefix = f"distribution_n_{n}_sample_{sample_size}_{parallelize_by.value}"
+    elif k_max is None:
+        file_name_prefix = f"distribution_n_{n}_sample_{sample_size}_{parallelize_by.value}_{k_min}"
+    else:
+        file_name_prefix = f"distribution_n_{n}_sample_{sample_size}_{parallelize_by.value}_{k_min}_{k_max}"
+    file_path = dire / f"{file_name_prefix}.txt"
     save_raw_data_to_file(filename=file_path, data=dist_latex)
 
-    file_path = dire / f"distribution_n_{n}_sample_{sample_size}_{parallelize_by.value}_{k_min}_{k_max}_averages.txt"
+    file_path = dire / f"{file_name_prefix}_averages.txt"
     averages_latex = df_averages.to_latex(index=False, escape=False)
     save_raw_data_to_file(filename=file_path, data=averages_latex)
 
