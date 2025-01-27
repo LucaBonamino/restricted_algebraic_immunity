@@ -281,20 +281,24 @@ class IVRestrictedAI:
         # vander_monde_s1 = IVRestrictedAI.compute_v(z=s[:idx + 1], e=e[:idx + 1])
         vander_monde_s = GF2Matrix(GF2Matrix.compute_vandermonde(s[:idx + 1], e[:idx + 1]))
         # assert vander_monde_s1.to_list() == vander_monde_s.to_list()compute_v
-        vander_monde_s = IVRestrictedAI.fill_matrix_will_all_s(vander_monde_s.copy(), s[idx + 1:], e[:idx + 1])
+        # vander_monde_s = IVRestrictedAI.fill_matrix_will_all_s(vander_monde_s.copy(), s[idx + 1:], e[:idx + 1])
+        vander_monde_s = vander_monde_s.fill_rows(s[idx + 1:], e[:idx + 1])
         # vander_monde_s = Matrix(GF(2), vander_monde_s.to_list())
         vander_monde_s, operations_s = vander_monde_s.row_echelon_full_matrix()
-        vandermonde = IVRestrictedAI.fill_matrix_will_all_s(states[0].vandermonde.copy(),
-                                                            states[0].z[idx + 1:],
-                                                            e[:idx + 1])
+        # vandermonde = IVRestrictedAI.fill_matrix_will_all_s(states[0].vandermonde.copy(),
+        #                                                     states[0].z[idx + 1:],
+        #                                                     e[:idx + 1])
+        vandermonde = states[0].vandermonde.fill_rows(states[0].z[idx + 1:], e[:idx + 1])
+
         # vandermonde, ops = generalized_echelon_form_GF2(vandermonde.to_list())
         vandermonde, ops = vandermonde.row_echelon_full_matrix()
         # states[0].vandermonde = GF2Matrix(vandermonde)
         states[0].vandermonde = vandermonde
         states[0].operations += ops
-        vandermonde = IVRestrictedAI.fill_matrix_will_all_s(states[1].vandermonde.copy(),
-                                                            states[1].z[idx + 1:],
-                                                            e[:idx + 1])
+        # vandermonde = IVRestrictedAI.fill_matrix_will_all_s(states[1].vandermonde.copy(),
+        #                                                     states[1].z[idx + 1:],
+        #                                                     e[:idx + 1])
+        vandermonde = states[1].vandermonde.fill_rows(states[1].z[idx + 1:], e[:idx + 1])
         # vandermonde, ops = generalized_echelon_form_GF2(vandermonde.to_list())
         vandermonde, ops = vandermonde.row_echelon_full_matrix()
         # states[1].vandermonde = GF2Matrix(vandermonde)
@@ -376,8 +380,13 @@ class IVRestrictedAI:
         # vander_monde_s1 = IVRestrictedAI.compute_v(z=s[:idx + 1], e=e[:idx + 1])
         vander_monde_s = GF2Matrix(GF2Matrix.compute_vandermonde(s[:idx + 1], e[:idx + 1]))
         # assert vander_monde_s1.to_list() == vander_monde_s.to_list()
-        vander_monde_s = IVRestrictedAI.fill_matrix_will_all_s(vander_monde_s.copy(), s[idx + 1:], e[:idx + 1])
-        # vander_monde_s = vander_monde_s.fill_rows(s[idx + 1:], e[:idx + 1])
+        # try:
+        # vander_monde_s = IVRestrictedAI.fill_matrix_will_all_s(vander_monde_s.copy(), s[idx + 1:], e[:idx + 1])
+
+        vander_monde_s = vander_monde_s.fill_rows(s[idx + 1:], e[:idx + 1])
+        # except Exception as exc:
+        #     a = 1
+        #
         vander_monde_s, operations_s = vander_monde_s.row_echelon_full_matrix()
         r_s = vander_monde_s.rank()
         if vander_monde.rank() < r_s:
@@ -455,13 +464,13 @@ class IVRestrictedAI:
                 (z, z_c, e, s_bin),
                 (z_c, z, e, s_bin)
             ]
-            # imm1 = f_ummu.find_min_annihilator(z, z_c, e, s_bin)
+            imm1 = f_ummu.find_min_annihilator(z, z_c, e, s_bin)
 
-            # imm2 = f_ummu.find_min_annihilator(z_c, z, e, s_bin)
+            imm2 = f_ummu.find_min_annihilator(z_c, z, e, s_bin)
 
-            # results = [imm1, imm2]
-            with Pool(processes=2) as pool:
-                results = pool.starmap(f_ummu.find_min_annihilator, args)
+            results = [imm1, imm2]
+            # with Pool(processes=2) as pool:
+            #     results = pool.starmap(f_ummu.find_min_annihilator, args)
             return min([item for item in results if item is not None])
         else:
             return f_ummu.fin_min_annihilator_sequencial(z=z, z_c=z_c, e=e, s=s_bin)
