@@ -1,6 +1,6 @@
 import typer
 
-from restricted_algebraic_immunity.clis.ai_distributions import app as distributions_app
+from restricted_algebraic_immunity.clis.aik_distributions import app as distributions_app
 from restricted_algebraic_immunity.clis.aik_of_published_functions import app as published_functions
 from restricted_algebraic_immunity.clis.algorithms_comparer import app as algorithms_comparison
 from restricted_algebraic_immunity.clis.pre_compute import app as pre_compute

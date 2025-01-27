@@ -1,18 +1,14 @@
 import itertools
 import json
 import math
-from sage.all import *
 import random
-
 from pathlib import Path
 from typing import Union, List
+import orjson
 
 from pydantic import BaseModel
 
 from restricted_algebraic_immunity import settings
-
-
-
 from restricted_algebraic_immunity.utils.logging import get_logger
 from restricted_algebraic_immunity.utils.utils import partition
 
@@ -34,7 +30,7 @@ class TruthTables(BaseModel):
 class BalancedSlice:
 
     def __init__(self, k, n_variables, domain):
-        max_column = 2 ** n_variables
+        # max_column = 2 ** n_variables
         self.k = k
         self.n = n_variables
         self.max_column = 2 ** n_variables
@@ -55,12 +51,12 @@ class BalancedSlice:
     def generate_vectors(self):
         half_n = len(self.domain) // 2
         iter = itertools.combinations(range(len(self.domain)), half_n)
-        return [[1 if idx in indexes else 0 for idx,v in enumerate(self.domain)] for indexes in iter]
+        return [[1 if idx in indexes else 0 for idx, v in enumerate(self.domain)] for indexes in iter]
 
     def generate_wapb_vectors(self):
-        half_n = math.ceil(len(self.domain)/ 2)
+        half_n = math.ceil(len(self.domain) / 2)
         iter = itertools.combinations(range(len(self.domain)), half_n)
-        return [[1 if idx in indexes else 0 for idx,v in enumerate(self.domain)] for indexes in iter]
+        return [[1 if idx in indexes else 0 for idx, v in enumerate(self.domain)] for indexes in iter]
 
     @staticmethod
     def generate_random_vector(size, k):
@@ -76,7 +72,7 @@ class BalancedSlice:
         return v
 
     def generate_wapb_random_vectors(self, sample_size: int):
-        half_n = math.ceil(len(self.domain)/ 2)
+        half_n = math.ceil(len(self.domain) / 2)
         for _ in range(sample_size):
             yield BalancedSlice.generate_random_vector(len(self.domain), half_n)
 
@@ -87,9 +83,9 @@ class BalancedSlice:
             # vect = zero_vector(GF(2), self.max_column)
             # vect[-1] = Integer(1)
             # log.debug(f"Returning vector: {vect}")
-            return [vector(GF(2), [0])]
+            return [[0]]
         elif self.k == self.n:
-            return [vector(GF(2), [1])]
+            return [[1]]
         else:
             half_n = len(self.domain) // 2
             log.debug("Condition not met, calling self.generate_half_hamming_weight_vectors")
@@ -97,11 +93,6 @@ class BalancedSlice:
                 log.error("The length of the vector must be even.")
                 raise ValueError("The length of the vector must be even.")
             return [BalancedSlice.generate_random_vector(len(self.domain), half_n) for i in range(sample_size)]
-
-
-
-
-
 
 
 class WPBFamily:
@@ -152,27 +143,24 @@ class WPBFamily:
         return TruthTables.parse_obj(resp)
 
 
-
-
 class WAPBFamily:
 
-     def __init__(self, n):
-         self.n = n
-         p = partition(n)
-         self.slices = [BalancedSlice(n_variables=n, k=k, domain=p[k]) for k in range(0, n + 1)]
+    def __init__(self, n):
+        self.n = n
+        p = partition(n)
+        self.slices = [BalancedSlice(n_variables=n, k=k, domain=p[k]) for k in range(0, n + 1)]
+
 
 def add_vectors(*vectors):
     return [sum(components) for components in zip(*vectors)]
 
 
 if __name__ == '__main__':
-    for n in range(1,10):
-        k = math.ceil(n /2)
+    for n in range(1, 10):
+        k = math.ceil(n / 2)
         wapb_family = WAPBFamily(n=n)
         slice_ = wapb_family.slices[k]
         if n <= 6:
             vectors = slice_.generate_wapb_vectors()
             print(vectors)
     print()
-
-# x : w(x) = k   k = 0, 2^m

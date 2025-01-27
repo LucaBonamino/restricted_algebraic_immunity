@@ -8,3 +8,4 @@ typer>=0.15.1,<2
 numpy<2
 pandas<2
 matplotlib
+orjson

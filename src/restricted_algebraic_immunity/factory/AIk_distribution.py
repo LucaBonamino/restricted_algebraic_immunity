@@ -1,11 +1,13 @@
 import argparse
 import enum
 import multiprocessing
+import os
 import time
 from concurrent.futures import ProcessPoolExecutor
 from functools import partial
 from pathlib import Path
 from typing import List, Tuple, Dict
+import math
 
 import matplotlib.pyplot as plt
 import pandas as pd
@@ -13,6 +15,7 @@ from matplotlib.ticker import MaxNLocator
 from sage.all import *
 from sage.crypto.boolean_function import BooleanFunction
 
+from restricted_algebraic_immunity import settings
 from restricted_algebraic_immunity.factory.WPB_constructor import WPBFamily, BalancedSlice
 from restricted_algebraic_immunity.full_reed_muller.FRM import FRMRestrictedAI
 from restricted_algebraic_immunity.inductive_reed_muller.IV import IVRestrictedAI
@@ -252,9 +255,10 @@ class AIkDistribution:
         ax.set_ylabel(r'$\mathbb{E}\left(AI_k\right)$', rotation=90)
         ax.grid()
         if save is True:
-            plot_filename = Path(
-                os.path.join(SCRIPT_DIR,
-                             f"results/IV/AIk_distributions/n_{n}/WPB_{m}_sample_size_{sample_size}_average_{parallelization_type}.png"))
+            plot_filename = Path(f'{settings.distributions_dir_name}/n_{n}/WPB_{m}_sample_size_{sample_size}_average_{parallelization_type}.png')
+            # plot_filename = Path(
+            #     os.path.join(SCRIPT_DIR,
+            #                  f"results/IV/AIk_distributions/n_{n}/WPB_{m}_sample_size_{sample_size}_average_{parallelization_type}.png"))
             plt.savefig(str(plot_filename))
         plt.close()
 
@@ -276,8 +280,10 @@ class AIkDistribution:
         # Use tight_layout
         if save is True:
             plot_filename = Path(
-                os.path.join(SCRIPT_DIR,
-                             f"results/IV/AIk_distributions/n_{n}/WPB_{m}_sample_size_{sample_size}_dist_prob_{parallelization_type}.png"))
+                f'{settings.distributions_dir_name}/n_{n}/WPB_{m}_sample_size_{sample_size}_dist_prob_{parallelization_type}.png')
+            # plot_filename = Path(
+            #     os.path.join(SCRIPT_DIR,
+            #                  f"results/IV/AIk_distributions/n_{n}/WPB_{m}_sample_size_{sample_size}_dist_prob_{parallelization_type}.png"))
             plt.savefig(str(plot_filename))
         plt.close(fig)
 
@@ -368,8 +374,9 @@ def main(n: int, k_max: int, k_min: int, parallelize_by: ParallelizationType, sa
                                                                                     algorithm=algorithm)
         # dist_df, times_df, df_averages = AIkDistribution.func_parallel_seq(m=m_log, n=args.n_vars, s=args.sample_size)
     times_latex = times_df.to_latex(index=False, escape=False)
-    dire = Path(
-        os.path.join(SCRIPT_DIR, f"../factory/results/IV/AIk_distributions/n_{n}"))
+    # dire = Path(
+    #    os.path.join(SCRIPT_DIR, f"../factory/results/IV/AIk_distributions/n_{n}"))
+    dire = Path(f"{settings.distributions_dir_name}/n_{n}")
     if not dire.is_dir():
         dire.mkdir()
 
@@ -405,7 +412,7 @@ if __name__ == '__main__':
     parser.add_argument('-km', '--k_min', type=int, default=0, help="Minimum k - default 0.")
     parser.add_argument('-pl', '--plot', action='store_true', help="Plot results")
     parser.add_argument('-alg', '--algorithm', type=lambda a: Algorithm(a),
-                        default=Algorithm.FRM.value, help='Algorithm to use: Alg 1 or Alg 3.')
+                        default=Algorithm.IV.value, help='Algorithm to use: Alg 1 or Alg 3 - default 3.')
     args = parser.parse_args()
     _log.info(f"Arguments given: {args}")
     main(n=args.n_vars, k_max=args.k_max, k_min=args.k_min, sample_size=args.sample_size,
