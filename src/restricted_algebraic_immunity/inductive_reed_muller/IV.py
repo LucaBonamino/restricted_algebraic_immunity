@@ -1,13 +1,13 @@
 import itertools
 import math
-from copy import copy
 from itertools import combinations
 from multiprocessing import Pool
 from typing import List, Tuple, Union
 
-import numpy as np
+from algebraic_immunity_utils import verify
 from algebraic_immunity_utils.algebraic_immunity_utils import Matrix as GF2Matrix
-from numpy.ma.extras import vander
+
+
 # from sage.all import *rom sage.all import *
 
 
@@ -197,7 +197,6 @@ class IVRestrictedAI:
 
             # combinations.append(v)
 
-
     @staticmethod
     def get_combinations(base):
         dim = len(base)
@@ -266,35 +265,40 @@ class IVRestrictedAI:
                     for kv in comb:
                         # if np.any(kv[cutoff_position:]) is True:
                         #     breakpoint()
-                        vanish_on_z, vanish_index = IVRestrictedAI.verify(z=state.z[i + 1:], mapping=state.e[:i + 1],
-                                                                          g=kv)
+                        vanish_on_z, vanish_index = verify(state.z[i + 1:], kv, state.e[:i + 1])
                         if vanish_on_z is True:
                             # and state.e[i].count('1') == sum(kv)
-                            vanish_on_s, _ = IVRestrictedAI.verify(z=state.z_c, g=kv, mapping=state.e[:i + 1])
+                            vanish_on_s, _ = verify(state.z_c, kv, state.e[:i + 1])
                             if vanish_on_s is False:
                                 return state.e[i].count('1')
                         else:
-                             new_index = i + vanish_index[0] + 1
-                             state.z[i + 1], state.z[new_index] = state.z[new_index], state.z[i + 1]
+                            new_index = i + vanish_index[0] + 1
+                            state.z[i + 1], state.z[new_index] = state.z[new_index], state.z[i + 1]
 
                 state.operations += operations_i
             i += 1
             idx += 1
-        vander_monde_s = IVRestrictedAI.compute_v(z=s[:idx + 1], e=e[:idx + 1])
-        vander_monde_s = IVRestrictedAI.fill_matrix_will_all_s(vander_monde_s.copy(), s[idx + 1:], e[:idx + 1])
+        # vander_monde_s1 = IVRestrictedAI.compute_v(z=s[:idx + 1], e=e[:idx + 1])
+        vander_monde_s = GF2Matrix(GF2Matrix.compute_vandermonde(s[:idx + 1], e[:idx + 1]))
+        # assert vander_monde_s1.to_list() == vander_monde_s.to_list()compute_v
+        # vander_monde_s = IVRestrictedAI.fill_matrix_will_all_s(vander_monde_s.copy(), s[idx + 1:], e[:idx + 1])
+        vander_monde_s = vander_monde_s.fill_rows(s[idx + 1:], e[:idx + 1])
         # vander_monde_s = Matrix(GF(2), vander_monde_s.to_list())
         vander_monde_s, operations_s = vander_monde_s.row_echelon_full_matrix()
-        vandermonde = IVRestrictedAI.fill_matrix_will_all_s(states[0].vandermonde.copy(),
-                                                                           states[0].z[idx + 1:],
-                                                                           e[:idx + 1])
+        # vandermonde = IVRestrictedAI.fill_matrix_will_all_s(states[0].vandermonde.copy(),
+        #                                                     states[0].z[idx + 1:],
+        #                                                     e[:idx + 1])
+        vandermonde = states[0].vandermonde.fill_rows(states[0].z[idx + 1:], e[:idx + 1])
+
         # vandermonde, ops = generalized_echelon_form_GF2(vandermonde.to_list())
         vandermonde, ops = vandermonde.row_echelon_full_matrix()
         # states[0].vandermonde = GF2Matrix(vandermonde)
         states[0].vandermonde = vandermonde
         states[0].operations += ops
-        vandermonde = IVRestrictedAI.fill_matrix_will_all_s(states[1].vandermonde.copy(),
-                                                                           states[1].z[idx + 1:],
-                                                                           e[:idx + 1])
+        # vandermonde = IVRestrictedAI.fill_matrix_will_all_s(states[1].vandermonde.copy(),
+        #                                                     states[1].z[idx + 1:],
+        #                                                     e[:idx + 1])
+        vandermonde = states[1].vandermonde.fill_rows(states[1].z[idx + 1:], e[:idx + 1])
         # vandermonde, ops = generalized_echelon_form_GF2(vandermonde.to_list())
         vandermonde, ops = vandermonde.row_echelon_full_matrix()
         # states[1].vandermonde = GF2Matrix(vandermonde)
@@ -323,7 +327,7 @@ class IVRestrictedAI:
                 r_s = vander_monde_s.rank()
                 # vander2 = Matrix(GF(2), vander_monde.to_list()).rank()
                 # if vander2 != vander_monde.rank():
-                 #    a = 1
+                #    a = 1
                 if vander_monde.rank() < r_s:
                     return e[i].count('1')
                 state.vandermonde = vander_monde
@@ -351,9 +355,9 @@ class IVRestrictedAI:
             vander_monde, operations_i = vander_monde.row_echelon_full_matrix()
             if vander_monde.rank() < i + 1:
                 k = vander_monde.kernel()[0]
-                vanish_on_z, vanish_index = IVRestrictedAI.verify(z=z[i + 1:], mapping=e[:i + 1], g=k)
+                vanish_on_z, vanish_index = verify(z[i + 1:], k, e[:i + 1])
                 if vanish_on_z is True:
-                    vanish_on_s, _ = IVRestrictedAI.verify(z=z_c, g=k, mapping=e[:i + 1])
+                    vanish_on_s, _ = verify(z_c, k, e[:i + 1])
                     if vanish_on_s is False:
                         return e[i].count('1')
                     else:
@@ -372,8 +376,17 @@ class IVRestrictedAI:
             idx += 1
             operations += operations_i
 
-        vander_monde_s = IVRestrictedAI.compute_v(z=s[:idx + 1], e=e[:idx + 1])
-        vander_monde_s = IVRestrictedAI.fill_matrix_will_all_s(vander_monde_s.copy(), s[idx + 1:], e[:idx + 1])
+        # vander_monde_s = IVRestrictedAI.compute_v(z=s[:idx + 1], e=e[:idx + 1])
+        # vander_monde_s1 = IVRestrictedAI.compute_v(z=s[:idx + 1], e=e[:idx + 1])
+        vander_monde_s = GF2Matrix(GF2Matrix.compute_vandermonde(s[:idx + 1], e[:idx + 1]))
+        # assert vander_monde_s1.to_list() == vander_monde_s.to_list()
+        # try:
+        # vander_monde_s = IVRestrictedAI.fill_matrix_will_all_s(vander_monde_s.copy(), s[idx + 1:], e[:idx + 1])
+
+        vander_monde_s = vander_monde_s.fill_rows(s[idx + 1:], e[:idx + 1])
+        # except Exception as exc:
+        #     a = 1
+        #
         vander_monde_s, operations_s = vander_monde_s.row_echelon_full_matrix()
         r_s = vander_monde_s.rank()
         if vander_monde.rank() < r_s:
@@ -446,7 +459,6 @@ class IVRestrictedAI:
             return 0
         e = cls.compute_monomials(n=f_ummu.n, r=f_ummu.n)
         r = len(z) / len(z_c) if len(z) < len(z_c) else len(z_c) / len(z)
-        # breakpoint()
         if r < balance_ratio:
             args = [
                 (z, z_c, e, s_bin),
