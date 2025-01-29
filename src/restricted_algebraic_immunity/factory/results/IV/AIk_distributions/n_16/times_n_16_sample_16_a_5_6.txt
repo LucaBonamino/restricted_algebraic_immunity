@@ -1,8 +1,0 @@
-\begin{tabular}{rrr}
-\toprule
- $k$ &  $\mathbb{E}[T(AI_k)]$ &  $\mathbb{E}[AI_k]$ \\
-\midrule
-   5 &            1633.377179 &              4.3125 \\
-   6 &           10683.446366 &              5.0000 \\
-\bottomrule
-\end{tabular}
