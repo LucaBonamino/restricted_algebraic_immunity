@@ -6,3 +6,5 @@ largeMatrices
 notebooks/.ipynb_checkpoints
 
 src/restricted_algebraic_immunity/full_reed_muller/pre_computation/largeMatrices
+
+gf2_linear_algebra_utils

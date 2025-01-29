@@ -20,8 +20,8 @@ To use the full functionality of the repository, install and use the package in 
 In particular, to use Algorithm 3, the <i>SageMath</i> library is not needed, but to use the command line interface getting installed with the package, it is needed even if you only intend to run Algorithm 3.</br>
 Installing the package will also create an entry point command <code>restrictedAI</code> to use CLI tool. However, this command will only work if the package has been installed in an environment with the SageMath library.
 
-### The gf2_linear_algebra_utils package as dependency
-The project depends on the <code>gf2_linear_algebra_utils</code> python package which is implemented in Rust. To ensure ananymity in the submission, such package has not been published to <b>PyPI</b>, but it is located in the <i>gf2_linear_algebra_utils</i>. Therefore, its installations may be done by creating a build locally using <i>maturin</i> or getting the wheels corresponding to your system from the GitHub release of the package.
+### The algebraic_immunity_utils package as dependency
+The project depends on the <code>algebraic_immunity_utils</code> python package which is implemented in Rust. To ensure ananymity in the submission, such package has not been published to <b>PyPI</b>, but it is located in the <i>algebraic_immunity_utils</i>. Therefore, its installations may be done by creating a build locally using <i>maturin</i> or getting the wheels corresponding to your system from the GitHub release of the package.
 
 
 ### SageMath
