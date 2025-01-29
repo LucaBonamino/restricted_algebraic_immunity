@@ -1,0 +1,8 @@
+\begin{tabular}{rr}
+\toprule
+ k &  average_aik \\
+\midrule
+13 &     2.990234 \\
+14 &     2.000000 \\
+\bottomrule
+\end{tabular}
