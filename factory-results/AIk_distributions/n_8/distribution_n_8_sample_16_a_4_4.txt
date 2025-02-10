@@ -1,0 +1,11 @@
+\begin{tabular}{rrr}
+\toprule
+ k &  aik &  aik_distribution \\
+\midrule
+ 4 &    0 &              0.00 \\
+ 4 &    1 &              0.00 \\
+ 4 &    2 &              0.25 \\
+ 4 &    3 &              0.75 \\
+ 4 &    4 &              0.00 \\
+\bottomrule
+\end{tabular}
