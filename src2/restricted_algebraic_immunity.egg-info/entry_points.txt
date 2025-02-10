@@ -1,0 +1,2 @@
+[console_scripts]
+restrictedAI = restricted_algebraic_immunity.entry_point:main

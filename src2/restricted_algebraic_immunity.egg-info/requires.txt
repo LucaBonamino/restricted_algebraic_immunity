@@ -1,0 +1,8 @@
+setuptools
+pip-autoremove
+pydantic<2
+typer<2,>=0.15.1
+numpy<2
+pandas<2
+matplotlib
+orjson

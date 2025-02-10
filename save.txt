@@ -1,0 +1,24 @@
+scontrol show job 6020535
+
+6021175
+
+Submitted batch job 6022314
+
+6025204
+
+scontrol show job 6025293
+
+
+scontrol show job 6042419
+
+squeue -u lbonamino
+
+
+iris:
+3880507
+3880713
+
+aion:
+6046831
+scontrol show job 6046831
+

@@ -22,7 +22,7 @@ orjson
 # algebraic_immunity_utils @ https://github.com/programmingAthlete/alegebraic_immunity_utils/releases/download/1.4.1/algebraic_immunity_utils-1.4.1-cp312-cp312-macosx_10_12_x86_64.whl
 # algebraic_immunity_utils @ https://github.com/programmingAthlete/alegebraic_immunity_utils/releases/download/1.4.1/algebraic_immunity_utils-1.4.1-cp312-cp312-macosx_11_0_arm64.whl
 # algebraic_immunity_utils @ https://github.com/programmingAthlete/alegebraic_immunity_utils/releases/download/1.4.1/algebraic_immunity_utils-1.4.1-cp312-cp312-manylinux_2_17_aarch64.manylinux2014_aarch64.whl
-algebraic_immunity_utils @ https://github.com/programmingAthlete/alegebraic_immunity_utils/releases/download/1.4.1/algebraic_immunity_utils-1.4.1-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl
+# algebraic_immunity_utils @ https://github.com/programmingAthlete/alegebraic_immunity_utils/releases/download/1.4.1/algebraic_immunity_utils-1.4.1-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl
 # algebraic_immunity_utils @ https://github.com/programmingAthlete/alegebraic_immunity_utils/releases/download/1.4.1/algebraic_immunity_utils-1.4.1-cp312-cp312-win32.whl
 # algebraic_immunity_utils @ https://github.com/programmingAthlete/alegebraic_immunity_utils/releases/download/1.4.1/algebraic_immunity_utils-1.4.1-cp312-cp312-win_amd64.whl
 # algebraic_immunity_utils @ https://github.com/programmingAthlete/alegebraic_immunity_utils/releases/download/1.4.1/algebraic_immunity_utils-1.4.1-cp313-cp313-macosx_10_12_x86_64.whl

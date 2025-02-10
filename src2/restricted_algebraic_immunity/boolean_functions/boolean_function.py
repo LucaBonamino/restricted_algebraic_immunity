@@ -2,11 +2,11 @@ from abc import ABC, abstractmethod
 
 import pandas as pd
 
-# from sage.all import *
+from sage.all import *
 
 from restricted_algebraic_immunity.boolean_functions.boolean_hypercube import Slices
 from restricted_algebraic_immunity.entities.enums import ReturnType
-# from restricted_algebraic_immunity.utils.utils_no_sage import partition
+from restricted_algebraic_immunity.utils.utils_no_sage import partition
 
 
 class CustomBooleanFunction(ABC):
@@ -62,20 +62,20 @@ class CustomBooleanFunction(ABC):
             return aik_s
 
 
-    # @staticmethod
-    # def is_wpb(t_table, n_vars):
-    #     p = partition(n_vars)
-    #     if t_table[0] == 1 or t_table[-1] == 0:
-    #         return False, None
-    #     sls = Slices(n_vars)
-    #     for sl in sls.slices:
-    #         if sl.k == 0 or sl.k == n_vars:
-    #             continue
-    #         print(n_vars, sl.k)
-    #         b = binomial(n_vars, sl.k)
-    #         it = len([t_table[item] for item in p[sl.k] if t_table[item] == 1])
-    #         if it != b//2:
-    #             return False, [t_table[item] for item in p[sl.k]]
-    #     return True, None
+    @staticmethod
+    def is_wpb(t_table, n_vars):
+        p = partition(n_vars)
+        if t_table[0] == 1 or t_table[-1] == 0:
+            return False, None
+        sls = Slices(n_vars)
+        for sl in sls.slices:
+            if sl.k == 0 or sl.k == n_vars:
+                continue
+            print(n_vars, sl.k)
+            b = binomial(n_vars, sl.k)
+            it = len([t_table[item] for item in p[sl.k] if t_table[item] == 1])
+            if it != b//2:
+                return False, [t_table[item] for item in p[sl.k]]
+        return True, None
 
 
