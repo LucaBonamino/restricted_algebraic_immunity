@@ -80,6 +80,7 @@ class AIkDistribution:
         else:
             raise Exception("Unknown algorithm")
         _log.info(f"Calculated AIk: dt: {dt}")
+        _log.info(f"AIk for sample {aik}")
         return aik, dt
 
     @classmethod
