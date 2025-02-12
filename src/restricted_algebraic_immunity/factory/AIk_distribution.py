@@ -249,7 +249,12 @@ class AIkDistribution:
                          save: bool = True):
         fig, ax = plt.subplots()
         print(average_dataframe)
-        ax.set_title(fr'Average of $AI_{{k}}$ for $n={n}$, $m={m}$ and $|\Omega |={sample_size}$')
+        log_sample = math.log(sample_size, 2)
+        if int(log_sample) == log_sample:
+            title = fr'Average of $AI_{{k}}$ for $n={n}$, $m={m}$ and $|\Omega |=2^{{{int(log_sample)}}}$'
+        else:
+            title = fr'Average of $AI_{{k}}$ for $n={n}$, $m={m}$ and $|\Omega |={sample_size}$'
+        ax.set_title(title)
         ax.plot(average_dataframe[DFKeys.K.value], average_dataframe[DFKeys.AVERAGE_AIK.value])
         ax.xaxis.set_major_locator(MaxNLocator(integer=True))
         ax.set_xlabel('k')
@@ -266,7 +271,12 @@ class AIkDistribution:
     @staticmethod
     def plot_prob_distribution(prob_vals, sample_size, n, parallelization_type, m: int, save: bool = True):
         fig, ax = plt.subplots()
-        ax.set_title(fr'Distribution of $AI_{{k}}$ for $n={n}$ and $|\Omega |={sample_size}$')
+        log_sample = math.log(sample_size,2)
+        if int(log_sample) == log_sample:
+            title = fr'Distribution of $AI_{{k}}$ for $n={n}$ and $|\Omega |=2^{{{int(log_sample)}}}$'
+        else:
+            title = fr'Distribution of $AI_{{k}}$ for $n={n}$ and $|\Omega |={sample_size}$'
+        ax.set_title(title)
         for k, v in prob_vals.items():
             ax.plot(v['aik'], v['aik_distribution'], marker='x',
                     label=fr'$k={k} \Rightarrow E_{{{k},{n}}}$')
@@ -275,8 +285,11 @@ class AIkDistribution:
         ax.set_xlabel(r'$AI_k$')
         ax.set_ylabel(r'$p\left({AI_k}\right)$', rotation=90)
         ax.grid()
+        # ax.legend(loc='best')
         ax.legend(loc='upper center', bbox_to_anchor=(0.5, -0.2), fancybox=True, shadow=True,
-                  ncol=len(prob_vals.keys()) // 2)
+                  ncol=max(4, len(prob_vals.keys()) // 4))
+        # ax.legend(loc='upper center', bbox_to_anchor=(0.5, -0.2), fancybox=True, shadow=True,
+        #            ncol=len(prob_vals.keys()) // 2)
         plt.tight_layout()
         # Use tight_layout
         if save is True:
