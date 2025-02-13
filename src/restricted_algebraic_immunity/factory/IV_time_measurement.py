@@ -1,7 +1,8 @@
 import argparse
 import os
+from pathlib import Path
 
-
+from restricted_algebraic_immunity import settings
 from restricted_algebraic_immunity.factory.time_comparison import TimeMeasurement
 from restricted_algebraic_immunity.inductive_reed_muller.IV import IVRestrictedAI
 from restricted_algebraic_immunity.utils.logging import get_logger
@@ -24,8 +25,9 @@ def main(max_n, sample_size):
     print()
     print(aik_s)
     script_dir = os.path.dirname(os.path.abspath(__file__))
-    file_path = os.path.join(script_dir, f"results/IV/times_{max_n}_{sample_size}.csv")
-    times.to_csv(file_path, index=False)
+    algs_comp = Path(settings.algs_comparison_dir_name) / "IV"
+    file_path = algs_comp / f"times_n_{max_n}_sample_{sample_size}.csv"
+    times.to_csv(str(file_path), index=False)
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(

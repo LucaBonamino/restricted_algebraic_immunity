@@ -46,7 +46,6 @@ def plot_dist(
 ):
     p = Path(distributions_dir_name) / f"n_{n}" / dist_filename
     df_dist = from_latex_to_dataframe(filename=p)
-    print("HERE")
     print(df_dist)
     dict_df = from_dataframe_to_dict_of_dataframes(data_frame=df_dist, key_label=DFKeys.K.value,
                                                    other_labels=[DFKeys.AIK.value, DFKeys.AIK_DIST.value])
