@@ -1,8 +1,11 @@
 import argparse
 import os
+from pathlib import Path
 
 import matplotlib.pyplot as plt
 import pandas as pd
+
+from restricted_algebraic_immunity import settings
 
 
 def plot_and_save(df_iv, df_rmf, sample_size):
@@ -31,17 +34,22 @@ def plot_and_save(df_iv, df_rmf, sample_size):
     plt.legend(loc='upper center')
     # plt.legend(loc="upper right")
     plt.grid()
-    plt.show()
+    # plt.show()
 
-    script_dir = os.path.dirname(os.path.abspath(__file__))
-    filename = os.path.join(script_dir, f"results/plot_{max_n}_{sample_size}.png")
+    algs_comp = Path(settings.algs_comparison_dir_name)
+    filename = algs_comp / f"plot_n_{max_n}_sample_{sample_size}.png"
     plt.savefig(filename)
+    plt.close()
 
 def main(max_n, sample_size):
-    script_dir = os.path.dirname(os.path.abspath(__file__))
-    file_path_1 = os.path.join(script_dir, f"results/IV/times_{max_n}_{sample_size}.csv")
-    file_path_2 = os.path.join(script_dir, f"results/FRM/times_{max_n}_{sample_size}.csv")
-
+    # script_dir = os.path.dirname(os.path.abspath(__file__))
+    filename = f"times_n_{max_n}_sample_{sample_size}.csv"
+    file_path_1 = Path(settings.algs_comparison_dir_name) / "IV" / filename
+    if not file_path_1.is_file():
+        raise Exception(f"File {file_path_1} does not exist")
+    file_path_2 = Path(settings.algs_comparison_dir_name) / "FRM" / filename
+    if not file_path_2.is_file():
+        raise Exception(f"File {file_path_2} does not exist")
     df_1 = pd.read_csv(f'{file_path_1}')
     df_2 = pd.read_csv(f'{file_path_2}')
 

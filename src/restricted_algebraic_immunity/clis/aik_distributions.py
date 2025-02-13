@@ -4,10 +4,12 @@ from pathlib import Path
 import typer
 import math
 
+from restricted_algebraic_immunity import settings
 from restricted_algebraic_immunity.factory.AIk_distribution import AIkDistribution, DFKeys, \
     ParallelizationType, main, Algorithm
 from restricted_algebraic_immunity.factory.plotter_utils import from_latex_to_dataframe, \
     from_dataframe_to_dict_of_dataframes
+from restricted_algebraic_immunity.settings import distributions_dir_name
 from restricted_algebraic_immunity.utils.logging import get_logger
 
 _log = get_logger(__name__)
@@ -42,15 +44,16 @@ def plot_dist(
         sample_size: int = typer.Option(default=16, help="Sample size"),
         n: int = typer.Option(16)
 ):
-    df_dist = from_latex_to_dataframe(filename=Path(dist_filename))
+    p = Path(distributions_dir_name) / f"n_{n}" / dist_filename
+    df_dist = from_latex_to_dataframe(filename=p)
     print(df_dist)
     dict_df = from_dataframe_to_dict_of_dataframes(data_frame=df_dist, key_label=DFKeys.K.value,
                                                    other_labels=[DFKeys.AIK.value, DFKeys.AIK_DIST.value])
     AIkDistribution.plot_prob_distribution(prob_vals=dict_df, sample_size=sample_size,
                                            parallelization_type=parallelize_by.value,
                                            m=int(math.log(n, 2)), n=n)
-
-    df_averages = from_latex_to_dataframe(filename=Path(average_filename))
+    p = Path(distributions_dir_name) / f"n_{n}" / average_filename
+    df_averages = from_latex_to_dataframe(filename=p)
     AIkDistribution.plot_aik_average(average_dataframe=df_averages, sample_size=sample_size,
                                      parallelization_type=parallelize_by.value,
                                      m=int(math.log(n, 2)), n=n)
