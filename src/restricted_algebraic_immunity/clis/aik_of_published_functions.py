@@ -5,7 +5,7 @@ from restricted_algebraic_immunity.factory.AIk_of_published_functions import tl,
 app = typer.Typer(pretty_exceptions_show_locals=False, no_args_is_help=True)
 
 
-@app.command('ZS23')
+@app.command('ZJZQ23')
 def ai_k_of_zs_24(
         n: int = typer.Option(16, help="Number of variables"),
         check: bool = typer.Option(False, help='Check if the function is WPB')
@@ -24,12 +24,13 @@ def ai_k_of_dm_24(
 @app.command('TL19')
 def ai_k_lt(
         n: int = typer.Option(16, help="Number of variables"),
-        check: bool = typer.Option(False, help='Check if the function is WPB')
+        check: bool = typer.Option(False, help='Check if the function is WPB'),
+        random: bool = typer.Option(False, help='Take a random function from the family')
 ):
-    print(tl(n), check)
+    print(tl(n, random, check))
 
 
-@app.command('CMR')
+@app.command('CMR17')
 def ai_k_lt(
         n: int = typer.Option(16, help="Number of variables"),
         check: bool = typer.Option(False, help='Check if the function is WPB')
