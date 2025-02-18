@@ -148,7 +148,10 @@ The following commands are available:
 </ul>
 
 #### Pre-compute RM generator matrices for Algorithm 1
-<code>restrictedAI pre-compute pre-compute-by-n --help</code>
+Pre compute $D^n$</br>
+<code>restrictedAI pre-compute by-n --help</code></br>
+Pre compute $D^{\leq n}$</br>
+<code>restrictedAI pre-compute by-n-max --help</code>
 
 ### Without the Typer CLI
 Without Typer CLI, the python scripts have to be executed individually.
