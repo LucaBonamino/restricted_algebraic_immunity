@@ -15,16 +15,16 @@ class FRMRestrictedAI:
         if n_max is not None:
             try:
                 rm = load(
-                    f"{settings.root_path}/full_reed_muller/pre_computation/{FileName.REED_MILLER.value}_{n_max}.sobj")
+                    f"{settings.root_path}/full_reed_muller/pre_computation/{FileName.REED_MILLER.value}_n_max_{n_max}.sobj")
                 degrees = load(
-                    f"{settings.root_path}/full_reed_muller/pre_computation/{FileName.DEGREES.value}_{n_max}.sobj")
+                    f"{settings.root_path}/full_reed_muller/pre_computation/{FileName.DEGREES.value}_n_max_{n_max}.sobj")
             except FileNotFoundError:
                 raise Exception(
                     f"Reed Muller generator matrix not pre-computed for n_max = {n_max}. "
                     f"Pre-compute it before computing the AIk")
         else:
-            rm = load(f"{settings.root_path}/full_reed_muller/pre_computation/{FileName.REED_MILLER.value}.sobj")
-            degrees = load(f"{settings.root_path}/full_reed_muller/pre_computation/{FileName.DEGREES.value}.sobj")
+            rm = load(f"{settings.root_path}/full_reed_muller/pre_computation/{FileName.REED_MILLER.value}_n_max_10.sobj")
+            degrees = load(f"{settings.root_path}/full_reed_muller/pre_computation/{FileName.DEGREES.value}_n_max_10.sobj")
         self.degrees = degrees
         self.reed_millers = rm
 

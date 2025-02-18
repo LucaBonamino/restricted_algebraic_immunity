@@ -134,7 +134,6 @@ The following commands are available:
         <ul>
             <li><code>--n</code>: number of variables. For WPB, n must be a power of 2.</li>
             <li><code>--check</code>: validate that the function is WPB.</li>
-            <li><code>--random</code>: take a random function from the family.</li>
         </ul>
     </li>
 </ul>
@@ -149,7 +148,10 @@ The following commands are available:
 </ul>
 
 #### Pre-compute RM generator matrices for Algorithm 1
-<code>restrictedAI pre-compute pre-compute-by-n --help</code>
+Pre compute $D^n$</br>
+<code>restrictedAI pre-compute by-n --help</code></br>
+Pre compute $D^{\leq n}$</br>
+<code>restrictedAI pre-compute by-n-max --help</code>
 
 ### Without the Typer CLI
 Without Typer CLI, the python scripts have to be executed individually.
