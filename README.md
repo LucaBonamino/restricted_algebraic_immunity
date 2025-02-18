@@ -134,7 +134,6 @@ The following commands are available:
         <ul>
             <li><code>--n</code>: number of variables. For WPB, n must be a power of 2.</li>
             <li><code>--check</code>: validate that the function is WPB.</li>
-            <li><code>--random</code>: take a random function from the family.</li>
         </ul>
     </li>
 </ul>
