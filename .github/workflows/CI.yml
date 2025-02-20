@@ -4,14 +4,12 @@ on:
   push:
     branches:
       - main
+      - master
       - testBranch
     tags:
       - '*'
   pull_request:
   workflow_dispatch:
-
-permissions:
-  contents: read
 
 jobs:
   linux:
@@ -22,22 +20,13 @@ jobs:
           - runner: ubuntu-latest
             target: x86_64
           - runner: ubuntu-latest
-            target: x86
-          - runner: ubuntu-latest
             target: aarch64
-          - runner: ubuntu-latest
-            target: armv7
-          - runner: ubuntu-latest
-            target: s390x
-          - runner: ubuntu-latest
-            target: ppc64le
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
           python-version: 3.x
-      - name: Build wheels in algebraic_immunity_utils
-        working-directory: algebraic_immunity_utils
+      - name: Build wheels
         uses: PyO3/maturin-action@v1
         with:
           target: ${{ matrix.platform.target }}
@@ -49,40 +38,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: wheels-linux-${{ matrix.platform.target }}
-          path: algebraic_immunity_utils/dist
-
-  musllinux:
-    runs-on: ${{ matrix.platform.runner }}
-    strategy:
-      matrix:
-        platform:
-          - runner: ubuntu-latest
-            target: x86_64
-          - runner: ubuntu-latest
-            target: x86
-          - runner: ubuntu-latest
-            target: aarch64
-          - runner: ubuntu-latest
-            target: armv7
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
-        with:
-          python-version: 3.x
-      - name: Build wheels in algebraic_immunity_utils
-        working-directory: algebraic_immunity_utils
-        uses: PyO3/maturin-action@v1
-        with:
-          target: ${{ matrix.platform.target }}
-          args: --release --out dist --find-interpreter
-          sccache: 'true'
-          manylinux: musllinux_1_2
-      - name: Upload wheels
-        working-directory: algebraic_immunity_utils
-        uses: actions/upload-artifact@v4
-        with:
-          name: wheels-musllinux-${{ matrix.platform.target }}
-          path: algebraic_immunity_utils/dist
+          path: dist
 
   windows:
     runs-on: ${{ matrix.platform.runner }}
@@ -99,8 +55,7 @@ jobs:
         with:
           python-version: 3.x
           architecture: ${{ matrix.platform.target }}
-      - name: Build wheels in algebraic_immunity_utils
-        working-directory: algebraic_immunity_utils
+      - name: Build wheels
         uses: PyO3/maturin-action@v1
         with:
           target: ${{ matrix.platform.target }}
@@ -111,7 +66,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: wheels-windows-${{ matrix.platform.target }}
-          path: algebraic_immunity_utils/dist
+          path: dist
 
   macos:
     runs-on: ${{ matrix.platform.runner }}
@@ -120,13 +75,14 @@ jobs:
         platform:
           - runner: macos-14
             target: aarch64
+          - runner: macos-14
+            target: x86_64  # Uncomment this for Intel Macs
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
           python-version: 3.x
-      - name: Build wheels in algebraic_immunity_utils
-        working-directory: algebraic_immunity_utils
+      - name: Build wheels
         uses: PyO3/maturin-action@v1
         with:
           target: ${{ matrix.platform.target }}
@@ -137,7 +93,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: wheels-macos-${{ matrix.platform.target }}
-          path: algebraic_immunity_utils/dist
+          path: dist
 
   release:
     name: Release
