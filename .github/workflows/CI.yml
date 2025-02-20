@@ -4,13 +4,11 @@ on:
   push:
     branches:
       - main
+      - testBranch
     tags:
       - '*'
   pull_request:
   workflow_dispatch:
-
-permissions:
-  contents: read
 
 jobs:
   linux:
@@ -21,67 +19,24 @@ jobs:
           - runner: ubuntu-latest
             target: x86_64
           - runner: ubuntu-latest
-            target: x86
-          - runner: ubuntu-latest
             target: aarch64
-          - runner: ubuntu-latest
-            target: armv7
-          - runner: ubuntu-latest
-            target: s390x
-          - runner: ubuntu-latest
-            target: ppc64le
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
           python-version: 3.x
-      - name: Build wheels in algebraic_immunity_utils
-        working-directory: algebraic_immunity_utils
+      - name: Build wheels
         uses: PyO3/maturin-action@v1
         with:
           target: ${{ matrix.platform.target }}
-          args: --release --out dist --find-interpreter
+          args: --release -m algebraic_immunity_utils/Cargo.toml --out dist --find-interpreter
           sccache: 'true'
           manylinux: auto
       - name: Upload wheels
-        working-directory: algebraic_immunity_utils
         uses: actions/upload-artifact@v4
         with:
           name: wheels-linux-${{ matrix.platform.target }}
-          path: algebraic_immunity_utils/dist
-
-  musllinux:
-    runs-on: ${{ matrix.platform.runner }}
-    strategy:
-      matrix:
-        platform:
-          - runner: ubuntu-latest
-            target: x86_64
-          - runner: ubuntu-latest
-            target: x86
-          - runner: ubuntu-latest
-            target: aarch64
-          - runner: ubuntu-latest
-            target: armv7
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
-        with:
-          python-version: 3.x
-      - name: Build wheels in algebraic_immunity_utils
-        working-directory: algebraic_immunity_utils
-        uses: PyO3/maturin-action@v1
-        with:
-          target: ${{ matrix.platform.target }}
-          args: --release --out dist --find-interpreter
-          sccache: 'true'
-          manylinux: musllinux_1_2
-      - name: Upload wheels
-        working-directory: algebraic_immunity_utils
-        uses: actions/upload-artifact@v4
-        with:
-          name: wheels-musllinux-${{ matrix.platform.target }}
-          path: algebraic_immunity_utils/dist
+          path: dist
 
   windows:
     runs-on: ${{ matrix.platform.runner }}
@@ -98,19 +53,17 @@ jobs:
         with:
           python-version: 3.x
           architecture: ${{ matrix.platform.target }}
-      - name: Build wheels in algebraic_immunity_utils
-        working-directory: algebraic_immunity_utils
+      - name: Build wheels
         uses: PyO3/maturin-action@v1
         with:
           target: ${{ matrix.platform.target }}
-          args: --release --out dist --find-interpreter
+          args: --release -m algebraic_immunity_utils/Cargo.toml --out dist --find-interpreter
           sccache: 'true'
       - name: Upload wheels
-        working-directory: algebraic_immunity_utils
         uses: actions/upload-artifact@v4
         with:
           name: wheels-windows-${{ matrix.platform.target }}
-          path: algebraic_immunity_utils/dist
+          path: dist
 
   macos:
     runs-on: ${{ matrix.platform.runner }}
@@ -119,38 +72,72 @@ jobs:
         platform:
           - runner: macos-14
             target: aarch64
+          - runner: macos-14
+            target: x86_64  # Uncomment this for Intel Macs
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
           python-version: 3.x
-      - name: Build wheels in algebraic_immunity_utils
-        working-directory: algebraic_immunity_utils
+      - name: Build wheels
         uses: PyO3/maturin-action@v1
         with:
           target: ${{ matrix.platform.target }}
-          args: --release --out dist --find-interpreter
+          args: --release -m algebraic_immunity_utils/Cargo.toml --out dist --find-interpreter
           sccache: 'true'
       - name: Upload wheels
-        working-directory: algebraic_immunity_utils
         uses: actions/upload-artifact@v4
         with:
           name: wheels-macos-${{ matrix.platform.target }}
-          path: algebraic_immunity_utils/dist
+          path: dist
 
-  sdist:
+  release:
+    name: Release
     runs-on: ubuntu-latest
+    if: ${{ startsWith(github.ref, 'refs/tags/') || github.event_name == 'workflow_dispatch' }}
+    needs: [ linux, windows, macos ]
+    permissions:
+      contents: write
     steps:
-      - uses: actions/checkout@v4
-      - name: Build sdist in algebraic_immunity_utils
-        working-directory: algebraic_immunity_utils
-        uses: PyO3/maturin-action@v1
+      - name: Download Linux x86_64 Wheels
+        uses: actions/download-artifact@v4
         with:
-          command: sdist
-          args: --out dist
-      - name: Upload sdist
-        working-directory: algebraic_immunity_utils
-        uses: actions/upload-artifact@v4
+          name: wheels-linux-x86_64
+          path: dist/linux/x86_64
+
+      - name: Download Linux aarch64 Wheels
+        uses: actions/download-artifact@v4
         with:
-          name: wheels-sdist
-          path: algebraic_immunity_utils/dist
+          name: wheels-linux-aarch64
+          path: dist/linux/aarch64
+
+      - name: Download Windows x64 Wheels
+        uses: actions/download-artifact@v4
+        with:
+          name: wheels-windows-x64
+          path: dist/windows/x64
+
+      - name: Download Windows x86 Wheels
+        uses: actions/download-artifact@v4
+        with:
+          name: wheels-windows-x86
+          path: dist/windows/x86
+
+      - name: Download macOS x86_64 Wheels
+        uses: actions/download-artifact@v4
+        with:
+          name: wheels-macos-x86_64
+          path: dist/macos/x86_64
+
+      - name: Download macOS aarch64 Wheels
+        uses: actions/download-artifact@v4
+        with:
+          name: wheels-macos-aarch64
+          path: dist/macos/aarch64
+
+      - name: Upload wheels to GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: dist/**/*.whl
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
