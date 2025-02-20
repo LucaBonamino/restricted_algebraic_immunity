@@ -4,7 +4,6 @@ on:
   push:
     branches:
       - main
-      - master
       - testBranch
     tags:
       - '*'
@@ -27,17 +26,18 @@ jobs:
         with:
           python-version: 3.x
       - name: Build wheels
-        run: |
-          cd algebraic_immunity_utils
-          maturin build --release --out dist --find-interpreter --target ${{ matrix.platform.target }}
-        env:
-          SCCACHE: 'true'
-          MANYLINUX: 'auto'
+        uses: PyO3/maturin-action@v1
+        with:
+          target: ${{ matrix.platform.target }}
+          args: --release --out dist --find-interpreter
+          sccache: 'true'
+        working-directory: algebraic_immunity_utils
       - name: Upload wheels
+        working-directory: algebraic_immunity_utils
         uses: actions/upload-artifact@v4
         with:
           name: wheels-linux-${{ matrix.platform.target }}
-          path: algebraic_immunity_utils/dist
+          path: dist
 
   windows:
     runs-on: ${{ matrix.platform.runner }}
@@ -55,16 +55,18 @@ jobs:
           python-version: 3.x
           architecture: ${{ matrix.platform.target }}
       - name: Build wheels
-        run: |
-          cd algebraic_immunity_utils
-          maturin build --release --out dist --find-interpreter --target ${{ matrix.platform.target }}
-        env:
-          SCCACHE: 'true'
+        uses: PyO3/maturin-action@v1
+        with:
+          target: ${{ matrix.platform.target }}
+          args: --release --out dist --find-interpreter
+          sccache: 'true'
+        working-directory: algebraic_immunity_utils
       - name: Upload wheels
+        working-directory: algebraic_immunity_utils
         uses: actions/upload-artifact@v4
         with:
           name: wheels-windows-${{ matrix.platform.target }}
-          path: algebraic_immunity_utils/dist
+          path: dist
 
   macos:
     runs-on: ${{ matrix.platform.runner }}
@@ -81,16 +83,18 @@ jobs:
         with:
           python-version: 3.x
       - name: Build wheels
-        run: |
-          cd algebraic_immunity_utils
-          maturin build --release --out dist --find-interpreter --target ${{ matrix.platform.target }}
-        env:
-          SCCACHE: 'true'
+        uses: PyO3/maturin-action@v1
+        with:
+          target: ${{ matrix.platform.target }}
+          args: --release --out dist --find-interpreter
+          sccache: 'true'
+        working-directory: algebraic_immunity_utils
       - name: Upload wheels
+        working-directory: algebraic_immunity_utils
         uses: actions/upload-artifact@v4
         with:
           name: wheels-macos-${{ matrix.platform.target }}
-          path: algebraic_immunity_utils/dist
+          path: dist
 
   release:
     name: Release
