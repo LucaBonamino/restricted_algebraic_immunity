@@ -19,7 +19,7 @@ setup(
     long_description=long_description,
     long_description_content_type="text/markdown",
     install_requires=read_requirements(),
-    url="https://github.com/programmingAthlete/restricted_algebraic_immunity-immunity.git",
+    url="https://github.com/LucaBonamino/restricted_algebraic_immunity-immunity.git",
     package_data={
         'algebraic_immunity': ['full_reed_muller/pre_computation/*'],
     },

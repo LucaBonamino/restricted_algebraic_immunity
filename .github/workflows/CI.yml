@@ -5,7 +5,6 @@ on:
     branches:
       - main
       - master
-      - testBranch
     tags:
       - '*'
   pull_request:
@@ -27,19 +26,17 @@ jobs:
         with:
           python-version: 3.x
       - name: Build wheels
-        working-directory: algebraic_immunity_utils
-        uses: PyO3/maturin-action@v1
-        with:
-          target: ${{ matrix.platform.target }}
-          args: --release --out dist --find-interpreter
-          sccache: 'true'
-          manylinux: auto
+        run: |
+          cd algebraic_immunity_utils
+          maturin build --release --out dist --find-interpreter --target ${{ matrix.platform.target }}
+        env:
+          SCCACHE: 'true'
+          MANYLINUX: 'auto'
       - name: Upload wheels
-        working-directory: algebraic_immunity_utils
         uses: actions/upload-artifact@v4
         with:
           name: wheels-linux-${{ matrix.platform.target }}
-          path: dist
+          path: algebraic_immunity_utils/dist
 
   windows:
     runs-on: ${{ matrix.platform.runner }}
@@ -57,18 +54,16 @@ jobs:
           python-version: 3.x
           architecture: ${{ matrix.platform.target }}
       - name: Build wheels
-        working-directory: algebraic_immunity_utils
-        uses: PyO3/maturin-action@v1
-        with:
-          target: ${{ matrix.platform.target }}
-          args: --release --out dist --find-interpreter
-          sccache: 'true'
+        run: |
+          cd algebraic_immunity_utils
+          maturin build --release --out dist --find-interpreter --target ${{ matrix.platform.target }}
+        env:
+          SCCACHE: 'true'
       - name: Upload wheels
-        working-directory: algebraic_immunity_utils
         uses: actions/upload-artifact@v4
         with:
           name: wheels-windows-${{ matrix.platform.target }}
-          path: dist
+          path: algebraic_immunity_utils/dist
 
   macos:
     runs-on: ${{ matrix.platform.runner }}
@@ -85,15 +80,64 @@ jobs:
         with:
           python-version: 3.x
       - name: Build wheels
-        working-directory: algebraic_immunity_utils
-        uses: PyO3/maturin-action@v1
-        with:
-          target: ${{ matrix.platform.target }}
-          args: --release --out dist --find-interpreter
-          sccache: 'true'
+        run: |
+          cd algebraic_immunity_utils
+          maturin build --release --out dist --find-interpreter --target ${{ matrix.platform.target }}
+        env:
+          SCCACHE: 'true'
       - name: Upload wheels
-        working-directory: algebraic_immunity_utils
         uses: actions/upload-artifact@v4
         with:
           name: wheels-macos-${{ matrix.platform.target }}
-          path: dist
+          path: algebraic_immunity_utils/dist
+
+  release:
+    name: Release
+    runs-on: ubuntu-latest
+    if: ${{ startsWith(github.ref, 'refs/tags/') || github.event_name == 'workflow_dispatch' }}
+    needs: [ linux, windows, macos ]
+    permissions:
+      contents: write
+    steps:
+      - name: Download Linux x86_64 Wheels
+        uses: actions/download-artifact@v4
+        with:
+          name: wheels-linux-x86_64
+          path: dist/linux/x86_64
+
+      - name: Download Linux aarch64 Wheels
+        uses: actions/download-artifact@v4
+        with:
+          name: wheels-linux-aarch64
+          path: dist/linux/aarch64
+
+      - name: Download Windows x64 Wheels
+        uses: actions/download-artifact@v4
+        with:
+          name: wheels-windows-x64
+          path: dist/windows/x64
+
+      - name: Download Windows x86 Wheels
+        uses: actions/download-artifact@v4
+        with:
+          name: wheels-windows-x86
+          path: dist/windows/x86
+
+      - name: Download macOS x86_64 Wheels
+        uses: actions/download-artifact@v4
+        with:
+          name: wheels-macos-x86_64
+          path: dist/macos/x86_64
+
+      - name: Download macOS aarch64 Wheels
+        uses: actions/download-artifact@v4
+        with:
+          name: wheels-macos-aarch64
+          path: dist/macos/aarch64
+
+      - name: Upload wheels to GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: dist/**/*.whl
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
