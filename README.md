@@ -21,6 +21,9 @@ In addition, the repository also contains the applications of the algorithms to 
 
 To use Algorithm 3 and run Application 2, any Python interpreter between 3.8 and 3.11 may be used without any additional requirements not listed in the requirement.txt file. However, to use Algorithm 1 and to run Application 1. and 3, the Python interpreter must have the <i>SageMath</i> library installed.
 
+<b>If you use this work, please cite:</b></br>
+<i>Bonamino, Luca and MEAUX, Pierrick. *Computing the restricted algebraic immunity, and application to WPB functions.* Unpublished, March 2025. </i>[Here](https://orbilu.uni.lu/handle/10993/64410)
+
 ## Installation
 
 To use the full functionality of the repository, install and use the package in a python interpreter having the <i>SageMath</i> library installed.</br>
