@@ -4,7 +4,8 @@ import math
 from restricted_algebraic_immunity.boolean_functions.boolean_function import CustomBooleanFunction
 from restricted_algebraic_immunity.boolean_functions.known_boolean_functions.CMR import CMR
 from restricted_algebraic_immunity.boolean_functions.known_boolean_functions.DM24 import SubDM24, DM24
-from restricted_algebraic_immunity.boolean_functions.known_boolean_functions.TL import LT_WPB_rand, tl_truth_table
+from restricted_algebraic_immunity.boolean_functions.known_boolean_functions.TL import LT_WPB_rand
+from restricted_algebraic_immunity.boolean_functions.known_boolean_functions.TL_truth_tables import tl_truth_table
 from restricted_algebraic_immunity.boolean_functions.known_boolean_functions.ZS23 import ZS23
 from restricted_algebraic_immunity.entities.enums import ReturnType
 from restricted_algebraic_immunity.utils.utils import is_WPB
@@ -18,7 +19,6 @@ def dm_24(n: int = 16, check: bool = False):
     if check is True:
         assert is_WPB(bf)
         assert DM24.is_wpb(bf.truth_table(), n) is True
-    print('OK')
     df = dm.immunity_f_k(n=n, f=bf, return_type=ReturnType.DATA_FRAME, _verbose=False,
                          _hide=True)
     return df
@@ -36,17 +36,13 @@ def zn_23(n: int = 16, check: bool = False):
 
 
 def tl(n: int, random: bool = False, check: bool = False):
-    # if random is True:
-    if True:
+    if random is True:
         bf = LT_WPB_rand(n)
     else:
         bf = tl_truth_table[n]
-    print(bf)
     if check is True:
         assert is_WPB(bf)
     immu = CustomBooleanFunction.immunity_f_k(f=bf, n=n, return_type=ReturnType.DATA_FRAME)
-    print(immu)
-    print(bf.truth_table(format='int'))
     return immu
 
 
@@ -54,10 +50,7 @@ def cmr(n: int, check: bool = False):
     bf = CMR(n)
     if check is True:
         assert is_WPB(bf)
-        print(CustomBooleanFunction.is_wpb(bf.truth_table(), n)[1])
-    print(bf.truth_table())
     immu = CustomBooleanFunction.immunity_f_k(f=bf, n=n, return_type=ReturnType.DATA_FRAME)
-    print(immu)
     return immu
 
 
