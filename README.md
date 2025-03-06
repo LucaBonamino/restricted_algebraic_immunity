@@ -27,15 +27,15 @@ To use Algorithm 3 and run Application 2, any Python interpreter between 3.8 and
 ## Installation
 
 To use the full functionality of the repository, install and use the package in a python interpreter having the <i>SageMath</i> library installed.</br>
-In particular, to use Algorithm 3, the <i>SageMath</i> library is not needed, but to use the command line interface getting installed with the package, it is needed even if you only intend to run Algorithm 3.</br>
+In particular, to use Algorithm 3, the <i>SageMath</i> library is not needed, but it is required if you want to use the command line interface getting installed with the package.</br>
 Installing the package will also create an entry point command <code>restrictedAI</code> to use CLI tool. However, this command will only work if the package has been installed in an environment with the SageMath library.
 
 ### The algebraic_immunity_utils package as dependency
-The project depends on the <code>algebraic_immunity_utils</code> python package which is implemented in Rust. To ensure ananymity in the submission, such package has not been published to <b>PyPI</b>, but it is located in the <i>algebraic_immunity_utils</i>. Therefore, its installations may be done by creating a build locally using <i>maturin</i> or getting the wheels corresponding to your system from the GitHub release of the package.
+The project depends on the <code>algebraic_immunity_utils</code> python package which is implemented in Rust. To ensure anonymity of the corresponding paper the submission, such package has not been published to <b>PyPI</b>, but it's source code is located in the <i>algebraic_immunity_utils</i> directory. Therefore, its installations may be done by creating a build locally using <i>maturin</i> or by getting the wheels corresponding to your system from the GitHub release of this repository.
 
 #### Local build
-To build the <code>algebraic_immunity_utils</code> locally <b>Cargo</b> and the <b>maturin>=1.7</b> maturin package is needed.</br>
-When these are installed, run<br/> 
+To build the <code>algebraic_immunity_utils</code> package locally, <b>Cargo</b> and the <b>maturin>=1.7</b> package are required.</br>
+When these are installed, enter the <i>algebraic_immunity_utils</i> directory and run<br/> 
 ```maturin build --release```</br>
 Then copy and paste the output in a pip install command:</br>
 <ul>
@@ -49,10 +49,10 @@ Then copy and paste the output in a pip install command:</br>
 
 
 #### Install via the wheels
-The links to the wheels are present in the <i>requirements.txt</i> file, to see which of the provided wheels is the one corresponding to your system, run the <code>python construct_wheel_url</code> and uncomment the line in the <i>requirements.txt</i> file corresponding to the output.
+The links of the wheels are present in the <i>requirements.txt</i> file. To see which of the provided wheels is the one corresponding to your system, run <code>python construct_wheel_url</code> and uncomment the line in the <i>requirements.txt</i> file corresponding to the output.
 
 #### Install full project
-Once you have either installed the <i>algebraic_immunity_utils</i> package from a local build or wou have uncommented the correct line in the <i>requirements.txt</i> file for it, you can install the full project.</br>
+Once you have either installed the <i>algebraic_immunity_utils</i> package from a local build or you have uncommented the correct line in the <i>requirements.txt</i> file corresponding to your system, you can install the full project.</br>
 Installing on the SageMath python environment</br>
 ```sage -pip install .```</br>
 Installing on a general Python environment</br>
@@ -70,7 +70,6 @@ Note that if you have <i>SageMath</i> installed in your default python interpret
 The following commands are available:
 
 #### AIk distributions
-<code>restrictedAI distributions --help</code>
 
 <ul>
     <li>AIk-distribution: <code>restrictedAI distributions AIk-distribution --help</code> 
