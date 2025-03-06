@@ -70,6 +70,7 @@ Note that if you have <i>SageMath</i> installed in your default python interpret
 The following commands are available:
 
 #### AIk distributions
+<code>restrictedAI distributions --help</code>
 
 <ul>
     <li>AIk-distribution: <code>restrictedAI distributions AIk-distribution --help</code> 
