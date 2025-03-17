@@ -1,0 +1,11 @@
+\begin{tabular}{rr}
+\toprule
+ $k$ &  $\mathbb{E}[T(AI_k)]$ \\
+\midrule
+   0 &               0.000004 \\
+   1 &               0.021426 \\
+   2 &               0.019512 \\
+   3 &               0.019765 \\
+   4 &               0.000013 \\
+\bottomrule
+\end{tabular}

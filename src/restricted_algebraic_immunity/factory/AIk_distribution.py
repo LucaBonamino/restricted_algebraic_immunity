@@ -1,5 +1,6 @@
 import argparse
 import enum
+import math
 import multiprocessing
 import os
 import time
@@ -7,7 +8,6 @@ from concurrent.futures import ProcessPoolExecutor
 from functools import partial
 from pathlib import Path
 from typing import List, Tuple, Dict
-import math
 
 import matplotlib.pyplot as plt
 import pandas as pd
@@ -46,6 +46,42 @@ class Algorithm(enum.Enum):
 
 
 class AIkDistribution:
+
+    @staticmethod
+    def compute_func(fun, *args, **kwargs):
+        t = time.time()
+        res = fun(*args, **kwargs)
+        dt = time.time() - t
+        return res, dt
+
+    @classmethod
+    def compute_exact_distribution(cls, m: int, n_var: int):
+        family = WPBFamily(m=m)
+        probs = {k: {j: 0 for j in range((n_var // 2 + 1))} for k in range(n_var + 1)}
+        aiK_averages = {k: 0 for k in range(((n_var + 1) // 2 + 1))}
+        times = {k: 0 for k in range(((n_var + 1) // 2 + 1))}
+        for sl in family.slices:
+            sub_tt = sl.generate_vectors()
+            _log.debug(f"subb_tt = {sub_tt}")
+            all_aiks, dts = zip(
+                *[cls.compute_func(fun=IVRestrictedAI.algebraic_immunity_dist, s_image=v, s=sl.domain,
+                                   n_vars=n_var)
+                  for v in sub_tt])
+            times[sl.k] = sum(dts) / len(dts)
+            aiK_averages[sl.k] = sum(all_aiks) / len(all_aiks)
+
+            value_counts = {}
+            for value in all_aiks:
+                if value in value_counts:
+                    value_counts[value] += 1
+                else:
+                    value_counts[value] = 1
+
+            # Calculate and store probabilities
+            total_count = len(all_aiks)
+            for value, count in value_counts.items():
+                probs[sl.k][value] = count / total_count
+        return aiK_averages, probs, times
 
     @staticmethod
     def run_immunity(sub_tt: List[int], slice_domain: List[int], n_vars: int, algorithm: Algorithm,
@@ -261,7 +297,8 @@ class AIkDistribution:
         ax.set_ylabel(r'$\mathbb{E}\left(AI_k\right)$', rotation=90)
         ax.grid()
         if save is True:
-            plot_filename = Path(f'{settings.distributions_dir_name}/n_{n}/WPB_{m}_sample_size_{sample_size}_average_{parallelization_type}.png')
+            plot_filename = Path(
+                f'{settings.distributions_dir_name}/n_{n}/WPB_{m}_sample_size_{sample_size}_average_{parallelization_type}.png')
             # plot_filename = Path(
             #     os.path.join(SCRIPT_DIR,
             #                  f"results/IV/AIk_distributions/n_{n}/WPB_{m}_sample_size_{sample_size}_average_{parallelization_type}.png"))
@@ -271,7 +308,7 @@ class AIkDistribution:
     @staticmethod
     def plot_prob_distribution(prob_vals, sample_size, n, parallelization_type, m: int, save: bool = True):
         fig, ax = plt.subplots()
-        log_sample = math.log(sample_size,2)
+        log_sample = math.log(sample_size, 2)
         if int(log_sample) == log_sample:
             title = fr'Distribution of $AI_{{k}}$ for $n={n}$ and $|\Omega |=2^{{{int(log_sample)}}}$'
         else:
@@ -295,9 +332,7 @@ class AIkDistribution:
         if save is True:
             plot_filename = Path(
                 f'{settings.distributions_dir_name}/n_{n}/WPB_{m}_sample_size_{sample_size}_dist_prob_{parallelization_type}.png')
-            # plot_filename = Path(
-            #     os.path.join(SCRIPT_DIR,
-            #                  f"results/IV/AIk_distributions/n_{n}/WPB_{m}_sample_size_{sample_size}_dist_prob_{parallelization_type}.png"))
+
             plt.savefig(str(plot_filename))
         plt.close(fig)
 
@@ -310,7 +345,6 @@ class AIkDistribution:
         slices = family.slices
         for k in k_range:
             element = slices[k]
-            # for element in family.slices:
             helf = math.ceil(len(element.domain) / 2)
             if binomial(len(element.domain), helf) <= s:
                 vectors = element.generate_wapb_vectors()
@@ -344,8 +378,6 @@ class AIkDistribution:
             _log.info(f"average time for k={element.k}: {times[element.k]}")
             ais[element.k] = vals / size
             probs[element.k] = {k: v / size for k, v in prob.items()}
-            # counts = Counter(results)
-            # probs[element.k] = {i: counts.get(i, 0) / len(results) for i in range(n + 1)}
         ks = k_range
         df_times = pd.DataFrame({
             r'$k$': k_range,
@@ -386,10 +418,7 @@ def main(n: int, k_max: int, k_min: int, parallelize_by: ParallelizationType, sa
         dist_df, times_df, df_averages = AIkDistribution.func_parallel_non_parallel(m=m_log, n=n,
                                                                                     s=sample_size, k_range=slice_k,
                                                                                     algorithm=algorithm)
-        # dist_df, times_df, df_averages = AIkDistribution.func_parallel_seq(m=m_log, n=args.n_vars, s=args.sample_size)
     times_latex = times_df.to_latex(index=False, escape=False)
-    # dire = Path(
-    #    os.path.join(SCRIPT_DIR, f"../factory/results/IV/AIk_distributions/n_{n}"))
     dire = Path(f"{settings.distributions_dir_name}/n_{n}")
     if not dire.is_dir():
         dire.mkdir()
@@ -417,23 +446,59 @@ def main(n: int, k_max: int, k_min: int, parallelize_by: ParallelizationType, sa
     save_raw_data_to_file(filename=file_path, data=averages_latex)
 
 
+def exact_distribution(n):
+    aik_averages, probs, times = AIkDistribution.compute_exact_distribution(m=int(math.log(n, 2)), n_var=n)
+    k_range = list(range(0,n+1))
+    t_times = pd.DataFrame({
+        r'$k$': k_range,
+        r'$\mathbb{E}[T(AI_k)]$': times.values()
+    })
+    df_averages = pd.DataFrame({
+        'k': k_range,
+        'average': aik_averages.values()
+    })
+    probs_df = AIkDistribution.dict_to_aik_df(data=probs)
+    dire = Path(f"{settings.distributions_dir_name}/n_{n}")
+    if not dire.is_dir():
+        dire.mkdir()
+
+    times_latex = t_times.to_latex(index=False, escape=False)
+
+    file_path = dire / f"times_n_{n}_sample.txt"
+    save_raw_data_to_file(filename=file_path, data=times_latex)
+    file_name_prefix = f"distribution_n_{n}_sample"
+    file_path = dire / f"{file_name_prefix}.txt"
+    dist_latex = probs_df[1].to_latex(index=False, escape=False)
+    save_raw_data_to_file(filename=file_path, data=dist_latex)
+
+    file_path = dire / f"{file_name_prefix}_averages.txt"
+    averages_latex = df_averages.to_latex(index=False, escape=False)
+    save_raw_data_to_file(filename=file_path, data=averages_latex)
+
+
+
 if __name__ == '__main__':
-    # print(multiprocessing.cpu_count())
     parser = argparse.ArgumentParser(
         prog='AIk Distribution Calculator',
         description='Compute the AIk distribution of WPB functions',
     )
     parser.add_argument('-n', '--n_vars', help='number of variables', type=int, default=8)
-    parser.add_argument('-O', '--sample_size', help='sample_size', type=int, default=10)
+    parser.add_argument('-O', '--sample_size', help='sample_size', type=int, default=1024)
     parser.add_argument('-p', '--parallelize_by', type=lambda p: ParallelizationType(p),
                         default=ParallelizationType.SAMPLES.value,
                         help="Type of parallelization: Slices: slices, Samples: a or Sequencial: sequencial.")
     parser.add_argument('-kM', '--k_max', type=int, default=None, help="Maximum k - default None.")
     parser.add_argument('-km', '--k_min', type=int, default=0, help="Minimum k - default 0.")
     parser.add_argument('-pl', '--plot', action='store_true', help="Plot results")
+    parser.add_argument('-exact', '--exact_distribution', action='store_false', help="Compute exact distribution")
     parser.add_argument('-alg', '--algorithm', type=lambda a: Algorithm(a),
-                        default=Algorithm.IV.value, help='Algorithm to use: Alg 1 or Alg 3 - default 3.')
+                        default=Algorithm.IV.value, help='Algorithm to use: Alg 2 or Alg 3 - default 3.')
     args = parser.parse_args()
     _log.info(f"Arguments given: {args}")
-    main(n=args.n_vars, k_max=args.k_max, k_min=args.k_min, sample_size=args.sample_size,
-         parallelize_by=args.parallelize_by, plot=args.plot, algorithm=args.algorithm)
+    if args.exact_distribution is True and args.n_vars in [8, 16]:
+        raise Exception(f"n={args.n_vars} is too big to compute the exact distribution")
+    if args.n_vars == 4 and args.exact_distribution is True:
+        exact_distribution(args.n)
+    else:
+        main(n=args.n_vars, k_max=args.k_max, k_min=args.k_min, sample_size=args.sample_size,
+             parallelize_by=args.parallelize_by, plot=args.plot, algorithm=args.algorithm)

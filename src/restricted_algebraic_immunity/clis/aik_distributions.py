@@ -1,12 +1,11 @@
+import math
 import os
 from pathlib import Path
 
 import typer
-import math
 
-from restricted_algebraic_immunity import settings
 from restricted_algebraic_immunity.factory.AIk_distribution import AIkDistribution, DFKeys, \
-    ParallelizationType, main, Algorithm
+    ParallelizationType, main, Algorithm, exact_distribution
 from restricted_algebraic_immunity.factory.plotter_utils import from_latex_to_dataframe, \
     from_dataframe_to_dict_of_dataframes
 from restricted_algebraic_immunity.settings import distributions_dir_name
@@ -19,20 +18,19 @@ app = typer.Typer(pretty_exceptions_show_locals=False, no_args_is_help=True)
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 
 
-
-
 @app.command('AIk-distribution')
 def calculate_distribution(
         n: int = typer.Option(16, help="Number of variables."),
-        sample_size: int = typer.Option(2, help="Sample size."),
+        sample_size: int = typer.Option(default=None, help="Sample size."),
         k_min: int = typer.Option(0, help='Minimum value of k.'),
         k_max: int = typer.Option(None, help='Maximum value of k.'),
         parallelize_by: ParallelizationType = typer.Option(ParallelizationType.SLICES.value,
                                                            help='Type of parallelization.'),
         algorithm: Algorithm = typer.Option(Algorithm.IV.value, help="algorithm to use."),
-        plot: bool = typer.Option(False, help='Produce and save plot.')
+        plot: bool = typer.Option(False, help='Produce and save plot.'),
 ):
-    main(n=n, k_max=k_max, k_min=k_min, sample_size=sample_size, parallelize_by=parallelize_by, plot=plot, algorithm=algorithm)
+    main(n=n, k_max=k_max, k_min=k_min, sample_size=sample_size, parallelize_by=parallelize_by, plot=plot,
+         algorithm=algorithm)
 
 
 @app.command('plot-distribution')
@@ -57,3 +55,11 @@ def plot_dist(
     AIkDistribution.plot_aik_average(average_dataframe=df_averages, sample_size=sample_size,
                                      parallelization_type=parallelize_by.value,
                                      m=int(math.log(n, 2)), n=n)
+
+
+@app.command("exact-distribution")
+def compute_exact_distributio(
+        n: int = typer.Option(4, help="Number of variables"),
+):
+    _log.info(f"Calling the distribution calculator with n={n}")
+    exact_distribution(n)
