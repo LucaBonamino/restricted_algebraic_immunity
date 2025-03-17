@@ -96,6 +96,14 @@ The following commands are available:
             <li><i>factory-results/AIk_distributions/n_{n}/times_{n}_sample_{sample-size}_{parallelize-by}.txt</i></li>
         </ul>
     </li>
+    <li>Compute exact distribution for n=4 <code>restrictedAI distributions exact-distribution --n 4</code></li></br>
+    The following files will be craated
+    <ul>
+        <li><i>factory-results/AIk_distributions/n_{n}/distribution_n_{n}_sample.txt</i></li>
+        <li><i>factory-results/AIk_distributions/n_{n}/distribution_n_{n}_sample_averages.txt</i></li>
+        <li><i>factory-results/AIk_distributions/n_{n}/times_n_{n}_sample.txt</i></li>
+    </ul>
+    </li>
     <li>plot-distribution: <code>restrictedAI distributions plot-distribution --help</code>
         <ul>
             <li><code>dist_filename</code>: filename of the text file where the AIk distribution is stored.</li>

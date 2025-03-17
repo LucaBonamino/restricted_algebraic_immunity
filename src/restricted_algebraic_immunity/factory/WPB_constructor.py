@@ -80,9 +80,6 @@ class BalancedSlice:
         log.debug(f"build_vectors called with self.k={self.k} and self.max_column={self.max_column}")
         if self.k == 0:
             log.debug("Condition met: self.k == 0 or self.k == self.max_column - 1")
-            # vect = zero_vector(GF(2), self.max_column)
-            # vect[-1] = Integer(1)
-            # log.debug(f"Returning vector: {vect}")
             return [[0]]
         elif self.k == self.n:
             return [[1]]

@@ -1,5 +1,4 @@
 use pyo3::prelude::*;
-use pyo3::wrap_pyfunction;
 
 #[pyclass]
 #[derive(Clone)]
@@ -167,85 +166,6 @@ impl Matrix {
                                 operations.push((r, last_row_index));
                             }
                         }
-                    }
-                }
-            }
-        }
-
-        (m_copy, operations)
-    }
-
-    fn echelon_form_last_row_dep(&mut self) -> (Self, Vec<(usize, usize)>) {
-        let mut m_copy = self.copy();
-        let last_row_index = m_copy.nrows() - 1;
-        let mut last_row = m_copy.elements[last_row_index].clone();
-        let mut operations = Vec::new();
-
-        for _ in 0..m_copy.ncols() {
-            let p_index = Matrix::get_pivot(&last_row);
-
-            if p_index.is_none() {
-                for row_index in (1..m_copy.nrows() - 1).rev() {
-                    if m_copy.is_zero_row(row_index) {
-                        continue;
-                    }
-
-                    let curr_pivot = Matrix::get_pivot(&m_copy.elements[row_index]).unwrap();
-                    let prev_pivot = Matrix::get_pivot(&m_copy.elements[row_index - 1]);
-
-                    if prev_pivot.is_none() || (curr_pivot < prev_pivot.unwrap()) {
-                        m_copy.swap_rows(row_index, row_index - 1);
-                        operations.push((row_index, row_index - 1));
-                        operations.push((row_index - 1, row_index));
-                        operations.push((row_index, row_index - 1));
-                    } else if let Some(prev_pivot_value) = prev_pivot {
-                        if prev_pivot_value == curr_pivot && prev_pivot_value == m_copy.ncols() - 1 {
-                            m_copy.add_rows(row_index, row_index - 1);
-                            operations.push((row_index, row_index - 1));
-                        }
-                    }
-                }
-
-                break;
-            } else {
-                let p_index = p_index.unwrap();
-                let mut p_row: Option<Vec<u8>> = None;
-                let mut j_index: Option<usize> = None;
-
-                let mut d_base = m_copy.nrows() - 1;
-                let mut closest: Option<usize> = None;
-
-                for j in 0..m_copy.nrows() - 1 {
-                    if let Some(piv) = Matrix::get_pivot(&m_copy.elements[j]) {
-                        if piv == p_index {
-                            p_row = Some(m_copy.elements[j].clone());
-                            j_index = Some(j);
-                            break;
-                        } else {
-                            let d = piv as isize - p_index as isize;
-                            if 0 < d && (d as usize) < d_base {
-                                closest = Some(j);
-                                d_base = d as usize;
-                            }
-                        }
-                    } else if closest.is_none() {
-                        closest = Some(j);
-                    }
-                }
-
-                if p_row.is_none() {
-                    if let Some(closest_u) = closest {
-                        m_copy.swap_rows(last_row_index, closest_u);
-                        last_row = m_copy.elements[last_row_index].clone();
-                        operations.push((closest_u, last_row_index));
-                        operations.push((last_row_index, closest_u));
-                        operations.push((closest_u, last_row_index));
-                    }
-                } else if let Some(p_row_value) = &p_row {
-                    if p_row_value[p_index] == 1 {
-                        m_copy.add_rows(last_row_index, j_index.unwrap());
-                        last_row = m_copy.elements[last_row_index].clone();
-                        operations.push((last_row_index, j_index.unwrap()));
                     }
                 }
             }

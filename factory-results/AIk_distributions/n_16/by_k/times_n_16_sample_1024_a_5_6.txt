@@ -1,8 +1,0 @@
-\begin{tabular}{rrr}
-\toprule
- k &  average_execution_time &  average_aik \\
-\midrule
- 5 &               91.810299 &     4.369141 \\
- 6 &              636.368421 &     5.000000 \\
-\bottomrule
-\end{tabular}
