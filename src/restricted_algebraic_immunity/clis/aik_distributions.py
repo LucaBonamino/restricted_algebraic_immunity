@@ -29,6 +29,8 @@ def calculate_distribution(
         algorithm: Algorithm = typer.Option(Algorithm.IV.value, help="algorithm to use."),
         plot: bool = typer.Option(False, help='Produce and save plot.'),
 ):
+    if n in [8,16] and sample_size is None:
+        raise Exception("Sample size must be provided for n = 8 and n = 16")
     main(n=n, k_max=k_max, k_min=k_min, sample_size=sample_size, parallelize_by=parallelize_by, plot=plot,
          algorithm=algorithm)
 
@@ -58,7 +60,7 @@ def plot_dist(
 
 
 @app.command("exact-distribution")
-def compute_exact_distributio(
+def compute_exact_distribution(
         n: int = typer.Option(4, help="Number of variables"),
 ):
     _log.info(f"Calling the distribution calculator with n={n}")

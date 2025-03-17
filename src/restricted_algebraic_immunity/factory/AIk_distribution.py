@@ -483,14 +483,14 @@ if __name__ == '__main__':
         description='Compute the AIk distribution of WPB functions',
     )
     parser.add_argument('-n', '--n_vars', help='number of variables', type=int, default=8)
-    parser.add_argument('-O', '--sample_size', help='sample_size', type=int, default=1024)
+    parser.add_argument('-O', '--sample_size', help='sample_size', type=int)
     parser.add_argument('-p', '--parallelize_by', type=lambda p: ParallelizationType(p),
                         default=ParallelizationType.SAMPLES.value,
                         help="Type of parallelization: Slices: slices, Samples: a or Sequencial: sequencial.")
     parser.add_argument('-kM', '--k_max', type=int, default=None, help="Maximum k - default None.")
     parser.add_argument('-km', '--k_min', type=int, default=0, help="Minimum k - default 0.")
     parser.add_argument('-pl', '--plot', action='store_true', help="Plot results")
-    parser.add_argument('-exact', '--exact_distribution', action='store_false', help="Compute exact distribution")
+    parser.add_argument('-exact', '--exact_distribution', action='store_true', help="Compute exact distribution")
     parser.add_argument('-alg', '--algorithm', type=lambda a: Algorithm(a),
                         default=Algorithm.IV.value, help='Algorithm to use: Alg 2 or Alg 3 - default 3.')
     args = parser.parse_args()
@@ -498,7 +498,9 @@ if __name__ == '__main__':
     if args.exact_distribution is True and args.n_vars in [8, 16]:
         raise Exception(f"n={args.n_vars} is too big to compute the exact distribution")
     if args.n_vars == 4 and args.exact_distribution is True:
-        exact_distribution(args.n)
+        exact_distribution(args.n_vars)
     else:
+        if args.sample_size is None:
+            raise Exception("The sample size is required for n = 8 and n = 16")
         main(n=args.n_vars, k_max=args.k_max, k_min=args.k_min, sample_size=args.sample_size,
              parallelize_by=args.parallelize_by, plot=args.plot, algorithm=args.algorithm)
