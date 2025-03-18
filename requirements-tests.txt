@@ -1,1 +1,1 @@
-WAPB@git+https://${GITHUB_TOKEN}@github.com/programmingAthlete/WAPB.git
+WAPB@git+https://${GITHUB_TOKEN}@github.com/LucaBonamino/WAPB.git
