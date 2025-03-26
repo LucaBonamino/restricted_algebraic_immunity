@@ -14,3 +14,4 @@ dummy_file.txt
 speed_tester.py
 
 algebraic_immunity_utils/Cargo.lock
+algebraic_immunity_utils/target
