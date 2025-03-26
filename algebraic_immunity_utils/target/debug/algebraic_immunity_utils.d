@@ -1,0 +1,1 @@
+/home/ubu/dev/restricted_algebraic_immunity/algebraic_immunity_utils/target/debug/algebraic_immunity_utils: /home/ubu/dev/restricted_algebraic_immunity/algebraic_immunity_utils/src/main.rs
