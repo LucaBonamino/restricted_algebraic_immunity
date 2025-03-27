@@ -1,5 +1,6 @@
 import argparse
 import enum
+import math
 import multiprocessing
 import os
 import time
@@ -12,10 +13,12 @@ import matplotlib.pyplot as plt
 import math
 
 from matplotlib.ticker import MaxNLocator
+from algebraic_immunity_utils import RestrictedAI
 
 
 from restricted_algebraic_immunity import settings
 from restricted_algebraic_immunity.factory.WPB_constructor import WPBFamily, BalancedSlice
+
 from restricted_algebraic_immunity.inductive_reed_muller.IV import IVRestrictedAI
 from restricted_algebraic_immunity.utils.logging import get_logger
 
@@ -69,7 +72,8 @@ class AIkDistribution:
                 for idx, val in zip(slice_domain, sub_tt):
                     padded_v[idx] = val
                 t = time.time()
-                aik = IVRestrictedAI.algebraic_immunity(truth_table=padded_v, s=slice_domain[::-1])
+                aik = RestrictedAI.algebraic_immunity(padded_v, slice_domain[::-1], n_vars)
+                # aik = IVRestrictedAI.algebraic_immunity(truth_table=padded_v, s=slice_domain[::-1])
                 dt = time.time() - t
             else:
                 t = time.time()
@@ -79,6 +83,7 @@ class AIkDistribution:
         else:
             raise Exception("Unknown algorithm")
         _log.info(f"Calculated AIk: dt: {dt}")
+        _log.info(f"AIk for sample {aik}")
         return aik, dt
 
     @classmethod
