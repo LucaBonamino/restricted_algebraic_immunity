@@ -14,6 +14,7 @@ from restricted_algebraic_immunity.full_reed_muller.FRM import FRMRestrictedAI
 from restricted_algebraic_immunity.inductive_reed_muller.IV import IVRestrictedAI
 
 from WAPB.parsed_AIk import AIk
+from algebraic_immunity_utils import RestrictedAI
 
 
 def partition(n):
@@ -89,7 +90,8 @@ class TestRestrictedEfficientImmunityExtensive(unittest.TestCase):
             for k in p:
                 ai_k_n = immunity_obj.algebraic_immunity(f=f, s=p[k])
                 t = time.time()
-                r = IVRestrictedAI.algebraic_immunity(v, p[k], balance_ratio=1)
+                r = RestrictedAI.algebraic_immunity(v, p[k], n_var)
+                # r = IVRestrictedAI.algebraic_immunity(v, p[k], balance_ratio=1)
                 dt = time.time() - t
                 print(f"time particular: {dt} for n_var: {n_var} and {k}")
                 if ai_k_n != r:
@@ -117,6 +119,9 @@ class TestRestrictedEfficientImmunityExtensive(unittest.TestCase):
                 s_image = [v[i] for i in p[k]]
                 r = IVRestrictedAI.algebraic_immunity_dist(s_image=s_image, s=p[k], n_vars=n_var)
                 if ai_k_n != r:
+                    print(p[k])
+                    print(s_image)
+                    print()
                     print(ai_k_n, r)
                     print(f.truth_table())
                     print(p[k])
@@ -256,6 +261,7 @@ class TestRestrictedEfficientImmunityExtensive(unittest.TestCase):
 
         f = BooleanFunction([int(item) for item in tb])
         r = IVRestrictedAI.algebraic_immunity(f, s)
+        r = RestrictedAI.algebraic_immunity([int(item) for item in tb], s, n)
         immunity_obj = FRMRestrictedAI()
         ai_k_n = immunity_obj.algebraic_immunity(f=f, s=s)
         print(r)
@@ -269,7 +275,8 @@ class TestRestrictedEfficientImmunityExtensive(unittest.TestCase):
         for k in range(n+1):
             s = p[k]
             f = BooleanFunction([int(item) for item in tb])
-            r = IVRestrictedAI.algebraic_immunity(f, s)
+            r = RestrictedAI.algebraic_immunity([int(item) for item in f.truth_table()], p[k], n)
+            # r = IVRestrictedAI.algebraic_immunity(f, s)
             immunity_obj = FRMRestrictedAI()
             ai_k_n = immunity_obj.algebraic_immunity(f=f, s=s)
             ai_k_n_n = AIk(k, f)

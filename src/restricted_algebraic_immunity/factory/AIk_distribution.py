@@ -14,6 +14,7 @@ import pandas as pd
 from matplotlib.ticker import MaxNLocator
 from sage.all import *
 from sage.crypto.boolean_function import BooleanFunction
+from algebraic_immunity_utils import RestrictedAI
 
 from restricted_algebraic_immunity import settings
 from restricted_algebraic_immunity.factory.WPB_constructor import WPBFamily, BalancedSlice
@@ -85,7 +86,7 @@ class AIkDistribution:
 
     @staticmethod
     def run_immunity(sub_tt: List[int], slice_domain: List[int], n_vars: int, algorithm: Algorithm,
-                     assert_wpb: bool = True, padded_sub_tt: bool = False):
+                     assert_wpb: bool = True, padded_sub_tt: bool = True):
         if assert_wpb is True:
             assert len([item for item in sub_tt if item == 1]) == len(sub_tt) / 2
         if algorithm == Algorithm.FRM:
@@ -98,8 +99,10 @@ class AIkDistribution:
                 aik = immu_obj.algebraic_immunity(f=BooleanFunction(padded_v), s=slice_domain[::-1])
                 dt = time.time() - t
             else:
+                padded_v = [0 for _ in range(2 ** n_vars)]
                 t = time.time()
-                aik = immu_obj.algebraic_immunity_dist(s_image=sub_tt, s=slice_domain[::-1], n_vars=n_vars)
+                aik = RestrictedAI.algebraic_immunity(padded_v, slice_domain[::-1], n_vars)
+                # aik = immu_obj.algebraic_immunity_dist(s_image=sub_tt, s=slice_domain[::-1], n_vars=n_vars)
                 dt = time.time() - t
         elif algorithm == Algorithm.IV:
             if padded_sub_tt is True:
@@ -107,7 +110,8 @@ class AIkDistribution:
                 for idx, val in zip(slice_domain, sub_tt):
                     padded_v[idx] = val
                 t = time.time()
-                aik = IVRestrictedAI.algebraic_immunity(truth_table=padded_v, s=slice_domain[::-1])
+                aik = RestrictedAI.algebraic_immunity(padded_v, slice_domain[::-1], n_vars)
+                # aik = IVRestrictedAI.algebraic_immunity(truth_table=padded_v, s=slice_domain[::-1])
                 dt = time.time() - t
             else:
                 t = time.time()

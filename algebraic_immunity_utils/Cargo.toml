@@ -12,6 +12,7 @@ crate-type = ["cdylib"]
 pyo3 = "^0.23.0"
 ndarray = "0.15"
 itertools = "0.10"
+rayon = "1.10"
 
 [profile.release]
 opt-level = 3

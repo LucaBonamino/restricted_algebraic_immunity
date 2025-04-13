@@ -1,9 +1,16 @@
 import unittest
 
 from algebraic_immunity_utils import Matrix as GF2Matrix
+from algebraic_immunity_utils import RestrictedAI
 
 
 class TestEchelonForm(unittest.TestCase):
+
+    def test_ai(self):
+        t = [0,1,1,0]
+        s = [0,1]
+        r = RestrictedAI.algebraic_immunity(t, s, 2)
+        self.assertEqual(r, 1)
 
     def test_echelon_form_last_row_simple(self):
         m = GF2Matrix([[1, 1], [1, 0]])

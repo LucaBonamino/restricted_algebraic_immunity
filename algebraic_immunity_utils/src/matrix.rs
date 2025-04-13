@@ -175,7 +175,7 @@ impl Matrix {
     }
 
 
-    fn echelon_form(&self) -> (Matrix, Vec<(usize, usize)>) {
+    pub fn echelon_form(&self) -> (Matrix, Vec<(usize, usize)>) {
         let mut m_copy = self.copy(); // Create a copy of the matrix
         let mut row = 0;
         let mut operations: Vec<(usize, usize)> = Vec::new();
@@ -211,7 +211,7 @@ impl Matrix {
         (m_copy, operations)
     }
 
-    fn row_echelon_full_matrix(&self) -> (Self, Vec<(usize, usize)>) {
+    pub fn row_echelon_full_matrix(&self) -> (Self, Vec<(usize, usize)>) {
         let mut m_copy = self.clone();
         let rows = m_copy.nrows();
         let cols = m_copy.ncols();
@@ -263,7 +263,7 @@ impl Matrix {
         }
     }
 
-    fn rank(&self) -> usize {
+    pub fn rank(&self) -> usize {
         let mut count = 0;
         let mut pivot_columns = std::collections::HashSet::new();
 
@@ -278,7 +278,7 @@ impl Matrix {
         count
     }
 
-    fn kernel(&self) -> Vec<Vec<u8>> {
+    pub fn kernel(&self) -> Vec<Vec<u8>> {
         let rows = self.nrows();
         let cols = self.ncols();
 
@@ -318,7 +318,7 @@ impl Matrix {
         kernel_base
     }
     #[staticmethod]
-    fn compute_vandermonde(support: Vec<String>, monomials: Vec<String> ) -> Vec<Vec<u8>>{
+    pub fn compute_vandermonde(support: Vec<String>, monomials: Vec<String> ) -> Vec<Vec<u8>>{
         let result: Vec<Vec<u8>> = support.iter()
             .map(|zi| {
                 monomials.iter()
@@ -329,7 +329,7 @@ impl Matrix {
         result
     }
 
-    fn compute_next(
+    pub fn compute_next(
         &self,
         monom_slice: Vec<String>,
         support_slice: Vec<String>,
@@ -351,7 +351,7 @@ impl Matrix {
         m_copy
     }
 
-    fn construct_and_add_column(&self, support: Vec<String>, monom: String, operations: Vec<(usize, usize)>) -> Self {
+    pub fn construct_and_add_column(&self, support: Vec<String>, monom: String, operations: Vec<(usize, usize)>) -> Self {
         let mut m_copy = self.clone();
         let column: Vec<u8> = (0..m_copy.nrows())
             .map(|i| str_ops(&support[i], &monom) as u8)
@@ -362,7 +362,7 @@ impl Matrix {
         m_copy
     }
 
-    fn fill_rows(&self, support_slice: Vec<String>, monom_slice: Vec<String>) -> Self {
+    pub fn fill_rows(&self, support_slice: Vec<String>, monom_slice: Vec<String>) -> Self {
         let mut m_copy = self.clone();
         for j in 0..support_slice.len(){
             let row: Vec<u8> = (0..monom_slice.len())
@@ -390,7 +390,7 @@ fn add_to_vectors(mut v1: Vec<u8>, v2: Vec<u8>, size: usize) -> Vec<u8> {
     v1
 }
 
-fn str_ops(s1: &str, s2: &str) -> u8 {
+pub fn str_ops(s1: &str, s2: &str) -> u8 {
     s1.chars()
         .zip(s2.chars())
         .map(|(c1, c2)| {
