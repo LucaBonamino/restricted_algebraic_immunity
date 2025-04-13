@@ -50,7 +50,7 @@ class AIkDistribution:
 
     @staticmethod
     def run_immunity(sub_tt: List[int], slice_domain: List[int], n_vars: int, algorithm: Algorithm,
-                     assert_wpb: bool = True, padded_sub_tt: bool = False):
+                     assert_wpb: bool = True, padded_sub_tt: bool = True):
         # if assert_wpb is True:
         #     assert len([item for item in sub_tt if item == 1]) == len(sub_tt) / 2
         # if algorithm == Algorithm.FRM:
@@ -223,13 +223,13 @@ class AIkDistribution:
         d = {
             DFKeys.K.value: k,
             DFKeys.AVERAGE_T.value: times.values(),
-            DFKeys.AVERAGE_AIK.value: average.values()
+            DFKeys.AVERAGE_AIK.value: [float(f"{v:.15f}") for v in average.values()]
         }
         # df_times = pd.DataFrame()
 
         averages = {
             DFKeys.K.value: k,
-            DFKeys.AVERAGE_AIK.value: average.values()
+            DFKeys.AVERAGE_AIK.value: [float(f"{v:.15f}") for v in average.values()]
         }
         # df_averages = pd.DataFrame()
         return prob, d, averages

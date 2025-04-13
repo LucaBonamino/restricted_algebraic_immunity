@@ -1,0 +1,1 @@
+{'k': [8], 'average_execution_time': dict_values([4111.88735576829]), 'average_aik': dict_values([6.0])}

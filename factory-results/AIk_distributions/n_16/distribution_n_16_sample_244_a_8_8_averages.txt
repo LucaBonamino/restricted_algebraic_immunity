@@ -1,0 +1,1 @@
+{'k': [8], 'average_aik': dict_values([6.0])}
