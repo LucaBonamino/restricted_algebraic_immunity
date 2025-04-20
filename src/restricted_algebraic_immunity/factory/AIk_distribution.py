@@ -49,9 +49,12 @@ class Algorithm(enum.Enum):
 class AIkDistribution:
 
     @staticmethod
-    def compute_func(fun, *args, **kwargs):
+    def compute_func(fun, s_image, s, n_vars):
+        padded_v = [0 for _ in range(2 ** n_vars)]
+        for idx, val in zip(s, s_image):
+            padded_v[idx] = val
         t = time.time()
-        res = fun(*args, **kwargs)
+        res = fun(padded_v, s, n_vars)
         dt = time.time() - t
         return res, dt
 
@@ -64,6 +67,7 @@ class AIkDistribution:
         for sl in family.slices:
             sub_tt = sl.generate_vectors()
             _log.debug(f"subb_tt = {sub_tt}")
+
             all_aiks, dts = zip(
                 *[cls.compute_func(fun=IVRestrictedAI.algebraic_immunity_dist, s_image=v, s=sl.domain,
                                    n_vars=n_var)
