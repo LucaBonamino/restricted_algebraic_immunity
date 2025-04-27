@@ -1,8 +1,6 @@
 import argparse
 import enum
-import math
 import multiprocessing
-import os
 import time
 from concurrent.futures import ProcessPoolExecutor
 from functools import partial
@@ -111,10 +109,8 @@ class AIkDistribution:
                 aik = immu_obj.algebraic_immunity(f=BooleanFunction(padded_v), s=slice_domain[::-1])
                 dt = time.time() - t
             else:
-                padded_v = [0 for _ in range(2 ** n_vars)]
                 t = time.time()
-                aik = RestrictedAI.algebraic_immunity(padded_v, slice_domain[::-1], n_vars)
-                # aik = immu_obj.algebraic_immunity_dist(s_image=sub_tt, s=slice_domain[::-1], n_vars=n_vars)
+                aik = immu_obj.algebraic_immunity_dist(s_image=sub_tt, s=slice_domain[::-1], n_vars=n_vars)
                 dt = time.time() - t
         elif algorithm == Algorithm.IV:
             if padded_sub_tt is True:

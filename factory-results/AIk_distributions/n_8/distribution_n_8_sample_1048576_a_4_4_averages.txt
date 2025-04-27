@@ -1,7 +1,0 @@
-\begin{tabular}{rr}
-\toprule
- k &  average_aik \\
-\midrule
- 4 &     2.879534 \\
-\bottomrule
-\end{tabular}
