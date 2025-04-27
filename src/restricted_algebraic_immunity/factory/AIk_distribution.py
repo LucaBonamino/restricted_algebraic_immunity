@@ -11,10 +11,10 @@ from typing import List, Tuple, Dict
 
 import matplotlib.pyplot as plt
 import pandas as pd
+from algebraic_immunity_utils import RestrictedAI
 from matplotlib.ticker import MaxNLocator
 from sage.all import *
 from sage.crypto.boolean_function import BooleanFunction
-from algebraic_immunity_utils import RestrictedAI
 
 from restricted_algebraic_immunity import settings
 from restricted_algebraic_immunity.factory.WPB_constructor import WPBFamily, BalancedSlice
@@ -89,16 +89,24 @@ class AIkDistribution:
         return aiK_averages, probs, times
 
     @staticmethod
-    def run_immunity(sub_tt: List[int], slice_domain: List[int], n_vars: int, algorithm: Algorithm,
+    def generate_truth_table_from_restricted_truth_table(slice_domain: List[int], restricted_truth_table: List[int],
+                                                         n_vars: int):
+        padded_v = [0 for _ in range(2 ** n_vars)]
+        for idx, val in zip(slice_domain, restricted_truth_table):
+            padded_v[idx] = val
+        return padded_v
+
+    @classmethod
+    def run_immunity(cls, sub_tt: List[int], slice_domain: List[int], n_vars: int, algorithm: Algorithm,
                      assert_wpb: bool = True, padded_sub_tt: bool = True):
         if assert_wpb is True:
             assert len([item for item in sub_tt if item == 1]) == len(sub_tt) / 2
         if algorithm == Algorithm.FRM:
             immu_obj = FRMRestrictedAI(n_max=n_vars)
             if padded_sub_tt is True:
-                padded_v = [0 for _ in range(2 ** n_vars)]
-                for idx, val in zip(slice_domain, sub_tt):
-                    padded_v[idx] = val
+                padded_v = cls.generate_truth_table_from_restricted_truth_table(n_vars=n_vars,
+                                                                                restricted_truth_table=sub_tt,
+                                                                                slice_domain=slice_domain)
                 t = time.time()
                 aik = immu_obj.algebraic_immunity(f=BooleanFunction(padded_v), s=slice_domain[::-1])
                 dt = time.time() - t
@@ -110,12 +118,11 @@ class AIkDistribution:
                 dt = time.time() - t
         elif algorithm == Algorithm.IV:
             if padded_sub_tt is True:
-                padded_v = [0 for _ in range(2 ** n_vars)]
-                for idx, val in zip(slice_domain, sub_tt):
-                    padded_v[idx] = val
+                padded_v = cls.generate_truth_table_from_restricted_truth_table(n_vars=n_vars,
+                                                                                restricted_truth_table=sub_tt,
+                                                                                slice_domain=slice_domain)
                 t = time.time()
                 aik = RestrictedAI.algebraic_immunity(padded_v, slice_domain[::-1], n_vars)
-                # aik = IVRestrictedAI.algebraic_immunity(truth_table=padded_v, s=slice_domain[::-1])
                 dt = time.time() - t
             else:
                 t = time.time()
@@ -158,7 +165,6 @@ class AIkDistribution:
 
             with ProcessPoolExecutor(workers) as executor:
                 results = list(executor.map(partial_process_item, vectors))
-            # print(results)
             _log.info(f"Calculated all AIk for slice k {element.k}")
             ai_k, dts = zip(*results)
         le = len(vectors)
@@ -456,7 +462,7 @@ def main(n: int, k_max: int, k_min: int, parallelize_by: ParallelizationType, sa
 
 def exact_distribution(n):
     aik_averages, probs, times = AIkDistribution.compute_exact_distribution(m=int(math.log(n, 2)), n_var=n)
-    k_range = list(range(0,n+1))
+    k_range = list(range(0, n + 1))
     t_times = pd.DataFrame({
         r'$k$': k_range,
         r'$\mathbb{E}[T(AI_k)]$': times.values()
@@ -482,7 +488,6 @@ def exact_distribution(n):
     file_path = dire / f"{file_name_prefix}_averages.txt"
     averages_latex = df_averages.to_latex(index=False, escape=False)
     save_raw_data_to_file(filename=file_path, data=averages_latex)
-
 
 
 if __name__ == '__main__':
