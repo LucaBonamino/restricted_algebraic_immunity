@@ -29,8 +29,6 @@ def zn_23(n: int = 16, check: bool = False):
     bf = ZS23.boolean_function(n=n, m=m)
     if check is True:
         assert is_WPB(bf)
-        # assert ZS23.is_wpb(bf.truth_table(), n) is True
-    # df = ZS23.immunity_f_k(f=bf, n=n, return_type=ReturnType.DATA_FRAME, _verbose=verbose, _hide=hide)
     df = ZS23.immunity_k(tt=bf.truth_table(), n=n, return_type=ReturnType.DATA_FRAME, _verbose=False, _hide=True)
     return df
 

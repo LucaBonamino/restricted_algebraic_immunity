@@ -1,5 +1,4 @@
 import itertools
-import math
 import time
 
 from restricted_algebraic_immunity.utils.logging import get_logger, set_level
@@ -31,7 +30,6 @@ class Slice:
             padded_v[idx] = val
         ti = time.time()
         immunity = RestrictedAI.algebraic_immunity(padded_v, self.domain, self.n)
-        # immunity = IVRestrictedAI.algebraic_immunity_dist(n_vars=self.n, s_image=s_image, s=self.domain, _hide=True)
         dt = time.time() - ti
         _log.info(f"[AIk] Immunity for k = {self.k}: {immunity}")
         return immunity, dt

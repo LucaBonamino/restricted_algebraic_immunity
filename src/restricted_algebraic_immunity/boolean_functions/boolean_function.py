@@ -1,10 +1,11 @@
 from abc import ABC, abstractmethod
+from typing import List
 
 import pandas as pd
 
 from sage.all import *
 
-from restricted_algebraic_immunity.boolean_functions.boolean_hypercube import Slices
+from restricted_algebraic_immunity.boolean_functions.boolean_hypercube import Slices, Slice
 from restricted_algebraic_immunity.entities.enums import ReturnType
 from restricted_algebraic_immunity.utils.utils import partition
 
@@ -30,7 +31,7 @@ class CustomBooleanFunction(ABC):
         pass
 
     @staticmethod
-    def compute_ai(r_slice, truth_table, _verbose: bool = False, _hide: bool = True):
+    def compute_ai(r_slice: Slice, truth_table: List[int], _verbose: bool = False, _hide: bool = True):
         s_image = r_slice.get_s_image(truth_table)
         return r_slice.immunity_k(s_image, _verbose=_verbose, _hide=_hide)
 
