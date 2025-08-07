@@ -51,7 +51,22 @@ Then copy and paste the output in a pip install command:</br>
 
 
 #### Install via the wheels
-The links of the wheels are present in the <i>requirements.txt</i> file. To see which of the provided wheels is the one corresponding to your system, run <code>python construct_wheel_url</code> and uncomment the line in the <i>requirements.txt</i> file corresponding to the output.
+The links of the wheels are present in the <i>requirements.txt</i> file. To see which of the provided wheels is the one corresponding to your system, run 
+```bash
+python construct_wheel_url -v 0.2.0
+````
+
+and uncomment the line in the <i>requirements.txt</i> file corresponding to the output.
+
+##### Install via the wheels from Zenodo
+The installation files are also hosted on Zenodo:  
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.15042593.svg)](https://doi.org/10.5281/zenodo.15042593)
+ 
+To determine the correct wheel for your system, run the following command:
+```bash
+python construct_wheel_url -l zenodo -v 0.2.0
+```
+
 
 #### Install full project
 Once you have either installed the <i>algebraic_immunity_utils</i> package from a local build or you have uncommented the correct line in the <i>requirements.txt</i> file corresponding to your system, you can install the full project.</br>
