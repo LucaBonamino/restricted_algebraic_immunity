@@ -40,8 +40,8 @@ class ParallelizationType(enum.Enum):
 
 
 class Algorithm(enum.Enum):
-    FRM = '1'
-    IV = '3'
+    FRM = '3'
+    IV = '2'
 
 
 class AIkDistribution:
@@ -501,7 +501,7 @@ if __name__ == '__main__':
     parser.add_argument('-pl', '--plot', action='store_true', help="Plot results")
     parser.add_argument('-exact', '--exact_distribution', action='store_true', help="Compute exact distribution")
     parser.add_argument('-alg', '--algorithm', type=lambda a: Algorithm(a),
-                        default=Algorithm.IV.value, help='Algorithm to use: Alg 2 or Alg 3 - default 3.')
+                        default=Algorithm.IV.value, help='Algorithm to use: Alg 2 or Alg 3 - default 2.')
     args = parser.parse_args()
     _log.info(f"Arguments given: {args}")
     if args.exact_distribution is True and args.n_vars in [8, 16]:

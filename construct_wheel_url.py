@@ -1,10 +1,17 @@
 import argparse
+import enum
 import platform
 import sys
 import os
 
-def get_wheel_url(version: str) -> str:
-    base_url = f"https://github.com/LucaBonamino/restricted_algebraic_immunity/releases/download/{version}/"
+class HostingLocation(enum.Enum):
+    GITHUB = 'github'
+    ZENODO = 'zenodo'
+
+def get_wheel_url(version: str, hosting_location: HostingLocation) -> str:
+    idx = '15042593' if version == '0.1.0' else '15290894'
+    base_url = f"https://github.com/LucaBonamino/restricted_algebraic_immunity/releases/download/{version}/"\
+        if hosting_location == HostingLocation.GITHUB else f"https://zenodo.org/record/{idx}/files/"
     python_version = f"cp{sys.version_info.major}{sys.version_info.minor}"
     system = platform.system()
     architecture = platform.machine()
@@ -43,5 +50,7 @@ if __name__ == "__main__":
         description='Construct the URL of the algebraic_immunity_utils package wheel corresponding to your system',
     )
     parser.add_argument('-v', '--version', help='version of the package release', type=str, default='0.2.0')
+    parser.add_argument('-l', '--location', type=lambda a: HostingLocation(a),
+                        default=HostingLocation.GITHUB.value, help='location hosting the wheels: GITHUB or ZENODO - default GITHUB')
     args = parser.parse_args()
-    print(get_wheel_url(version=args.version))
+    print(get_wheel_url(version=args.version, hosting_location=args.location))
