@@ -1,8 +1,8 @@
 # restricted_algebraic_immunity
 This repository contains two algorithms to compute the restricted algebraic immunity of Boolean function.</br>
 <ul>
-    <li>Using punctured RM generator matrices - Algorithm 1.</li>
-    <li>Constructing Vandermonde matrices iteratively - Algorithm 3.</li>
+    <li>Using punctured RM generator matrices - Algorithm 3.</li>
+    <li>Constructing Vandermonde matrices iteratively - Algorithm 2.</li>
 </ul>
 
 In addition, the repository also contains the applications of the algorithms to WAPB and WPB functions. In particular: 
@@ -19,17 +19,17 @@ In addition, the repository also contains the applications of the algorithms to 
     </li>
 </ol>
 
-To use Algorithm 3 and run Application 2, any Python interpreter between 3.8 and 3.11 may be used without any additional requirements not listed in the requirement.txt file. However, to use Algorithm 1 and to run Application 1. and 3, the Python interpreter must have the <i>SageMath</i> library installed.
+To use Algorithm 2 and run Application 2, any Python interpreter between 3.8 and 3.11 may be used without any additional requirements not listed in the requirement.txt file. However, to use Algorithm 3 and to run Application 1. and 3, the Python interpreter must have the <i>SageMath</i> library installed.
 
 <b>If you use this work, please cite:</b></br>
 <i>Bonamino, Luca and MEAUX, Pierrick. *Computing the restricted algebraic immunity, and application to WPB functions.* Unpublished, March 2025. </i>[Here](https://orbilu.uni.lu/handle/10993/64410)
 
-While all the above-mentioned applications use Algorithm 3, only the AIk distribution relies on a full Rust implementation of it. This allows for a larger sample size in the AIk distribution compared to the one presented in the current version of the preprint.
+While all the above-mentioned applications use Algorithm 2, only the AIk distribution relies on a full Rust implementation of it. This allows for a larger sample size in the AIk distribution compared to the one presented in the current version of the preprint.
 
 ## Installation
 
 To use the full functionality of the repository, install and use the package in a python interpreter having the <i>SageMath</i> library installed.</br>
-In particular, to use Algorithm 3, the <i>SageMath</i> library is not needed, but it is required if you want to use the command line interface getting installed with the package.</br>
+In particular, to use Algorithm 2, the <i>SageMath</i> library is not needed, but it is required if you want to use the command line interface getting installed with the package.</br>
 Installing the package will also create an entry point command <code>restrictedAI</code> to use CLI tool. However, this command will only work if the package has been installed in an environment with the SageMath library.
 
 ### The algebraic_immunity_utils package as dependency
@@ -82,7 +82,7 @@ The following commands are available:
         <li><code>--k-min</code>: minimum value of k.</li>
         <li><code>--k-max</code>: maximum value of k.</li>
         <li><code>--parallelize-by</code>: Type or parallelization: sequencial (no parallelization), by slice k or by sample.</li>
-        <li><code>--algorithm</code>: algorithm to use: 1 or 3.</li>
+        <li><code>--algorithm</code>: algorithm to use: 2 or 3.</li>
     </ul>
         If k-min and k-max are not provided, the distribution and the averages will be calculated for all ks.</br>
         This will generate e files
@@ -160,7 +160,7 @@ The following commands are available:
     <li>Produce comparison plot <code>restrictedAI algs-comparison comparison-plot --help</code>.</li>
 </ul>
 
-#### Pre-compute RM generator matrices for Algorithm 1
+#### Pre-compute RM generator matrices for Algorithm 3
 Pre compute $D^n$</br>
 <code>restrictedAI pre-compute by-n --help</code></br>
 Pre compute $D^{\leq n}$</br>
@@ -180,5 +180,5 @@ Without Typer CLI, the python scripts have to be executed individually.
 <code>python src/restricted_algebraic_immunity/factory/IV_time_measurement.py --help</code></br>
 <code>python src/restricted_algebraic_immunity/factory/produce_time_comparison_plot.py --help</code>
 
-#### Pre-compute RM generator matrices for Algorithm 1
+#### Pre-compute RM generator matrices for Algorithm 3
 <code>python src/restricted_algebraic_immunity/factory/pre_compute.py --help</code>
