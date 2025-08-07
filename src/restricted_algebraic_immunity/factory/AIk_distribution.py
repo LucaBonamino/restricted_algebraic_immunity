@@ -40,8 +40,8 @@ class ParallelizationType(enum.Enum):
 
 
 class Algorithm(enum.Enum):
-    FRM = '1'
-    IV = '3'
+    FRM = '3'
+    IV = '2'
 
 
 class AIkDistribution:
