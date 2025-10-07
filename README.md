@@ -22,7 +22,8 @@ In addition, the repository also contains the applications of the algorithms to 
 To use Algorithm 2 and run Application 2, any Python interpreter between 3.8 and 3.11 may be used without any additional requirements not listed in the requirement.txt file. However, to use Algorithm 3 and to run Application 1. and 3, the Python interpreter must have the <i>SageMath</i> library installed.
 
 <b>If you use this work, please cite:</b></br>
-<i>Bonamino, Luca and MEAUX, Pierrick. *Computing the restricted algebraic immunity, and application to WPB functions.* Unpublished, March 2025. </i>[Here](https://orbilu.uni.lu/handle/10993/64410)
+*"Computing the Restricted Algebraic Immunity, and Application to WPB Functions"*  
+Luca Bonamino and Pierrick Méaux. [IACR ePrint 2025/1779](https://eprint.iacr.org/2025/1779).
 
 While all the above-mentioned applications use Algorithm 2, only the AIk distribution relies on a full Rust implementation of it. This allows for a larger sample size in the AIk distribution compared to the one presented in the current version of the preprint.
 
