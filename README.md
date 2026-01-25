@@ -1,6 +1,6 @@
 # restricted_algebraic_immunity
-This repository contains the source code to reproduce the results of the paper ["Computing the Restricted Algebraic Immunity, and Application to Weightwise Perfectly Balanced Functions"](https://link.springer.com/chapter/10.1007/978-981-95-4434-9_7) accepted at ["CANS2025"](https://cy2sec.comm.eng.osaka-u.ac.jp/miyaji-lab/event/cans2025/index.html) ([IACR ePrint 2025/1779](https://eprint.iacr.org/2025/1779) ).</br>
-For a cleaner implementation of *algebraic immunity* and *restricted algebraic immunity*, refer to the repository ["algebraic_immunity_rs](https://github.com/LucaBonamino/algebraic_immunity_rs). 
+This repository contains the source code to reproduce the results of the paper ["Computing the Restricted Algebraic Immunity, and Application to Weightwise Perfectly Balanced Functions"](https://link.springer.com/chapter/10.1007/978-981-95-4434-9_7) accepted at [CANS2025](https://cy2sec.comm.eng.osaka-u.ac.jp/miyaji-lab/event/cans2025/index.html) ([IACR ePrint 2025/1779](https://eprint.iacr.org/2025/1779) ).</br>
+For a cleaner implementation of *algebraic immunity* and *restricted algebraic immunity*, refer to the repository [algebraic_immunity_rs](https://github.com/LucaBonamino/algebraic_immunity_rs). 
 
 ---
 
