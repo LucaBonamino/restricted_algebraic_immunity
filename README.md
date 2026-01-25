@@ -1,4 +1,9 @@
 # restricted_algebraic_immunity
+This repository contains the source code to reproduce the results of the paper ["Computing the Restricted Algebraic Immunity, and Application to Weightwise Perfectly Balanced Functions"](https://link.springer.com/chapter/10.1007/978-981-95-4434-9_7) accepted at ["CANS2025"](https://cy2sec.comm.eng.osaka-u.ac.jp/miyaji-lab/event/cans2025/index.html) ([IACR ePrint 2025/1779](https://eprint.iacr.org/2025/1779) ).</br>
+For a cleaner implementation of *algebraic immunity* and *restricted algebraic immunity*, refer to the repository ["algebraic_immunity_rs](https://github.com/LucaBonamino/algebraic_immunity_rs). 
+
+---
+
 This repository contains two algorithms to compute the restricted algebraic immunity of Boolean function.</br>
 <ul>
     <li>Using punctured RM generator matrices - Algorithm 3.</li>
@@ -23,7 +28,7 @@ To use Algorithm 2 and run Application 2, any Python interpreter between 3.8 and
 
 <b>If you use this work, please cite:</b></br>
 *"Computing the Restricted Algebraic Immunity, and Application to WPB Functions"*  
-Luca Bonamino and Pierrick Méaux. [IACR ePrint 2025/1779](https://eprint.iacr.org/2025/1779).
+Luca Bonamino and Pierrick Méaux. ["Springer"](https://link.springer.com/chapter/10.1007/978-981-95-4434-9_7)
 
 While all the above-mentioned applications use Algorithm 2, only the AIk distribution relies on a full Rust implementation of it. This allows for a larger sample size in the AIk distribution compared to the one presented in the current version of the preprint.
 

@@ -109,9 +109,6 @@ impl Matrix {
                     let piv: Option<usize> = Matrix::get_pivot(&m_copy.elements[j]);
                     if piv.is_none() {
                         closest = Some(j);
-                        // if closest.is_none() {
-                        //     closest = Some(j);
-                        // }
                         break;
                     } else {
                         let piv_u = piv.unwrap();

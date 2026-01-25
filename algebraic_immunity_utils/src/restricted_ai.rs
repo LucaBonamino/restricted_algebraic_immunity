@@ -87,7 +87,7 @@ impl RestrictedAI{
                 for &pos in &ones_positions {
                     binary_string[pos] = '1';
                 }
-                let combination: String = binary_string.iter().rev().collect(); // ✅ No reverse
+                let combination: String = binary_string.iter().rev().collect();
                 all_combinations.push(combination);
             }
         }
