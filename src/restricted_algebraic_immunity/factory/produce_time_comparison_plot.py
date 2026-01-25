@@ -14,16 +14,16 @@ def plot_and_save(df_iv, df_rmf, sample_size):
 
     print(df_iv)
     # Plot the data
-    plt.plot(df_rmf['n'], df_rmf['Average execution times'], marker='o', label="Algorithm 3")
-    plt.plot(df_iv['n'], df_iv['Average execution times'], marker='x', label="Algorithm 2")
+    plt.plot(df_rmf['n'], df_rmf['Average execution times'], marker='o', label="RM approach")
+    plt.plot(df_iv['n'], df_iv['Average execution times'], marker='x', label="Iterative approach")
     plt.xticks(range(int(min(df_iv['n'])), int(max(df_iv['n'])) + 1))
     plt.xlabel(r'$n$')
-    plt.ylabel(r'$\mathbb{E}\left[T\left(AI_{\lceil{n/2}\rceil}\right)\right]$', rotation=90)
+    plt.ylabel(r'Execution time (s)', rotation=90)
     # plt.title(rf'Average execution time of Algorithm 1 and 2 on $S = E_{{n,\lceil{{n/2}}\rceil}}$ for $n$ from $0$ to ${max_n}$ with $|\Omega| = {sample_size}$\nPrecomputation of $D$ for Algorithm 1: {pre_computation_time}')
 
     title = (
-        f"Average execution time of Algorithm 2 and 3 on $S = E_{{\\lceil{{n/2}}\\rceil,n}}$"
-        f" with $|\\Omega| = {{10^4}}$\n$T(G^{{\leq 12}} )$ for Algorithm 3: {round(pre_computation_time, 4)} seconds"
+        f"Average execution time of Iterative and RM approaches on $S = E_{{\\lceil{{n/2}}\\rceil,n}}$"
+        f" with $|\\Omega| = {{10^4}}$\n$T(G^{{\leq 12}} )$ for RM approach: {round(pre_computation_time, 4)} seconds"
     )
 
     # Wrap title
